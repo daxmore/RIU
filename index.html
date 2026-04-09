@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI LAB | High-End Animation Showcase</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <!-- GSAP Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+
+    <link rel="stylesheet" href="assets/global-nav.css">
+    <style>
+        :root {
+            /* Neutrals */
+            --bg-base: #F5F5F0; /* Soft White */
+            --text-main: #2D2D2D;
+            --muted-clay: #C8B0A8;
+            
+            /* Category Colors (Pastels) */
+            --color-interactions: #B8D4E8; /* Muted Blue */
+            --color-navigation: #D4C9E3;   /* Pale Lavender */
+            --color-reveals: #E8D5D0;      /* Soft Blush */
+            --color-scroll: #C8D8CC;       /* Muted Sage */
+            --color-sliders: #F0D9D1;      /* Soft Peach */
+            
+            /* Accents (Vibrant Pastels) */
+            --accent-pink: #F5A8C0;
+            --accent-lavender: #C8A8F5;
+            --accent-mint: #A8F5D8;
+            
+            /* Spacing */
+            --padding-canvas: 5vw;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- NOISE OVERLAY --- */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.05;
+            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+            filter: contrast(120%) brightness(100%);
+        }
+
+        /* --- THE LAYOUT CONTAINER --- */
+        .collage-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: var(--padding-canvas);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- BACKGROUND TYPOGRAPHY --- */
+        .bg-text {
+            position: absolute;
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(10rem, 25vw, 40rem);
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.03);
+            text-transform: uppercase;
+            line-height: 0.8;
+            letter-spacing: -0.05em;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin-bottom: 2rem;
+            max-width: 800px;
+        }
+
+        .hero-headline {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .hero-subtext {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.6;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        /* --- CATEGORY BLOCKS --- */
+        .category-blocks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .block {
+            position: absolute;
+            padding: 1.5rem 2rem;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.03);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: inherit;
+            pointer-events: auto;
+            cursor: grab; /* Interactive blocks */
+            transition: box-shadow 0.4s ease; /* Removed transform transition */
+        }
+
+        .block:active { cursor: grabbing; }
+
+        .block:hover {
+            box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.08);
+            z-index: 20;
+        }
+
+        .block-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .block-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.4;
+        }
+
+        /* Specific Block Positions (Controlled Chaos) */
+        .block-interactions { top: 15%; left: 10%; background-color: var(--color-interactions); transform: rotate(-3deg); }
+        .block-navigation   { top: 25%; right: 12%; background-color: var(--color-navigation); transform: rotate(2deg); }
+        .block-reveals      { bottom: 20%; left: 15%; background-color: var(--color-reveals); transform: rotate(1deg); }
+        .block-scroll       { bottom: 15%; right: 10%; background-color: var(--color-scroll); transform: rotate(-4deg); }
+        .block-sliders      { top: 50%; right: 20%; background-color: var(--color-sliders); transform: rotate(3deg); }
+
+        /* --- STICKERS / TAGS --- */
+        .sticker {
+            position: absolute;
+            padding: 8px 16px;
+            background: var(--text-main);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 20px;
+            z-index: 15;
+            pointer-events: auto; /* Enable hover for stickers */
+            cursor: grab;
+        }
+
+        .sticker:active { cursor: grabbing; }
+
+        .sticker:hover {
+            filter: brightness(1.1);
+        }
+
+        .sticker-gsap { top: 40%; left: 30%; transform: rotate(15deg); background: var(--accent-pink); color: var(--text-main); }
+        .sticker-css  { bottom: 35%; right: 35%; transform: rotate(-10deg); background: var(--accent-mint); color: var(--text-main); }
+        .sticker-js   { top: 20%; right: 40%; transform: rotate(5deg); background: var(--accent-lavender); color: var(--text-main); }
+
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        @media (max-width: 768px) {
+            .bg-text { font-size: 15rem; }
+            .hero-headline { font-size: 2.5rem; }
+            .block { 
+                padding: 1rem;
+                position: static;
+                transform: none !important;
+                margin: 10px 0;
+                width: 100%;
+                pointer-events: auto;
+            }
+            .category-blocks {
+                position: relative;
+                height: auto;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+            }
+            .collage-container {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                justify-content: flex-start;
+                padding-top: 15vh;
+            }
+            .sticker { display: none; }
+            body { overflow-y: auto; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grain-overlay"></div>
+
+    <div class="collage-container">
+        
+        <!-- Background Massive Word -->
+        <h1 class="bg-text" id="bgText">BUILD</h1>
+
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <h2 class="hero-headline">High-End Animations.<br>Ready to Use.</h2>
+            <p class="hero-subtext">Reusable animation blocks built with HTML, CSS, JS, and GSAP. Curated for creative developers.</p>
+        </div>
+
+        <!-- Stickers -->
+        <div class="sticker sticker-gsap">FREE GSAP</div>
+        <div class="sticker sticker-css">VANILLA CSS</div>
+        <div class="sticker sticker-js">PLUGIN PLAY</div>
+
+        <!-- Category Visual Blocks (Now Visual Only) -->
+        <div class="category-blocks">
+            <div class="block block-interactions">
+                <span class="block-tag">01 / Logic</span>
+                <span class="block-title">Interactions</span>
+            </div>
+            <div class="block block-navigation">
+                <span class="block-tag">02 / Flow</span>
+                <span class="block-title">Navigation</span>
+            </div>
+            <div class="block block-reveals">
+                <span class="block-tag">03 / Intro</span>
+                <span class="block-title">Reveals</span>
+            </div>
+            <div class="block block-scroll">
+                <span class="block-tag">04 / Motion</span>
+                <span class="block-title">Scroll</span>
+            </div>
+            <div class="block block-sliders">
+                <span class="block-tag">05 / Gallery</span>
+                <span class="block-title">Sliders</span>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <script src="assets/global-nav.js"></script>
+    <script>
+        // --- GSAP ANIMATIONS ---
+
+        // 1. Entrance Logic
+        const launch = () => {
+            const tl = gsap.timeline();
+
+            tl.from("#bgText", {
+                y: 100,
+                opacity: 0,
+                duration: 1.5,
+                ease: "power4.out"
+            })
+            .from(".hero-headline", {
+                y: 50,
+                opacity: 0,
+                duration: 1.2,
+                ease: "power3.out"
+            }, "-=1")
+            .from(".hero-subtext", {
+                opacity: 0,
+                duration: 1
+            }, "-=0.8")
+            .from(".block", {
+                scale: 0.8,
+                opacity: 0,
+                y: 50,
+                duration: 1,
+                stagger: 0.1,
+                ease: "back.out(1.7)"
+            }, "-=0.8")
+            .from(".sticker", {
+                scale: 0,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "back.out(2)"
+            }, "-=0.5")
+            .from(".global-nav-container", {
+                y: 100,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            }, "-=0.5");
+        };
+
+        // 2. Mouse Parallax (Depth Effect)
+        window.addEventListener("mousemove", (e) => {
+            const { clientX, clientY } = e;
+            const xPos = (clientX / window.innerWidth - 0.5) * 40;
+            const yPos = (clientY / window.innerHeight - 0.5) * 40;
+
+            gsap.to(".category-blocks", {
+                x: xPos,
+                y: yPos,
+                duration: 2,
+                ease: "power2.out"
+            });
+
+            gsap.to("#bgText", {
+                x: xPos * 0.3,
+                y: yPos * 0.3,
+                duration: 2.5,
+                ease: "power2.out"
+            });
+
+            gsap.to(".sticker", {
+                x: xPos * 1.5,
+                y: yPos * 1.5,
+                duration: 1.5,
+                ease: "power2.out"
+            });
+        });
+
+        // 3. Block & Sticker Interactivity
+        const interactableElements = [
+            ...document.querySelectorAll(".block"),
+            ...document.querySelectorAll(".sticker")
+        ];
+        let activeZIndex = 1100;
+
+        interactableElements.forEach(el => {
+            const isSticker = el.classList.contains('sticker');
+            
+            // Initial Animation Values
+            const originalRotate = el.classList.contains('block-interactions') ? -3 :
+                                 el.classList.contains('block-navigation') ? 2 :
+                                 el.classList.contains('block-reveals') ? 1 :
+                                 el.classList.contains('block-scroll') ? -4 : 
+                                 el.classList.contains('block-sliders') ? 3 :
+                                 isSticker ? (el.classList.contains('sticker-gsap') ? 15 : el.classList.contains('sticker-css') ? -10 : 5) : 0;
+
+            // 1. GSAP Hover Logic
+            el.addEventListener("mouseenter", () => {
+                if (Draggable.get(el).isDragging) return;
+                gsap.to(el, {
+                    yPercent: -5,
+                    rotation: 0,
+                    scale: isSticker ? 1.2 : 1.05,
+                    duration: 0.4,
+                    ease: "power3.out"
+                });
+            });
+
+            el.addEventListener("mouseleave", () => {
+                if (Draggable.get(el).isDragging) return;
+                const currentRotate = el.dataset.interacted === "true" ? 0 : originalRotate;
+                gsap.to(el, {
+                    yPercent: 0,
+                    rotation: currentRotate,
+                    scale: 1,
+                    duration: 0.4,
+                    ease: "power3.inOut"
+                });
+            });
+
+            el.dataset.interacted = "false";
+
+            Draggable.create(el, {
+                type: "x,y",
+                onDragStart: function() {
+                    el.dataset.interacted = "true";
+                    activeZIndex++;
+                    gsap.set(this.target, { zIndex: activeZIndex });
+                    gsap.to(this.target, { scale: isSticker ? 1.3 : 1.1, rotation: 0, duration: 0.2 });
+                },
+                onDragEnd: function() {
+                    gsap.to(this.target, { scale: 1, rotation: 0, duration: 0.3, ease: "power2.out" });
+                }
+            });
+        });
+
+        // 4. Initialize Global Navbar
+        document.addEventListener('DOMContentLoaded', () => {
+            initGlobalNav('./');
+            launch();
+        });
+    </script>
+</body>
+
+</html>

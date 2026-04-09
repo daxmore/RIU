@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchestrated Hero Reveal | UI Laboratory</title>
+    
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/global-nav.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+    <script src="../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           DESIGN SYSTEM: Muted Pastel Palette
+        */
+        :root {
+            --soft-blush: #E8D5D0;
+            --muted-sage: #C8D8CC;
+            --pale-lavender: #D4C9E3;
+            --soft-peach: #F0D9D1;
+            --muted-blue: #B8D4E8;
+            --soft-cream: #F5F1E8;
+            
+            --text-dark: #2D2D2D;
+            --text-muted: #7A7A7A;
+            
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Outfit', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--soft-cream);
+            color: var(--text-dark);
+            overflow: hidden; /* Locked during reveal */
+            height: 100vh;
+        }
+
+        /* 
+           REVEAL OVERLAYS (BLOCKS)
+        */
+        .reveal-overlay {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            z-index: 1000;
+            background-color: var(--muted-sage);
+            will-change: clip-path;
+        }
+
+        .overlay-top {
+            top: 0;
+            /* clip-path: inset(0 0 0 0); Initial state */
+        }
+
+        .overlay-bottom {
+            bottom: 0;
+            background-color: var(--soft-blush);
+        }
+
+        /* 
+           MAIN CONTENT
+        */
+        .hero-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5vw;
+        }
+
+        /* 
+           GALLERY & FLIP STATES
+        */
+        .gallery {
+            position: relative;
+            width: 100%;
+            height: 50vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gallery-item {
+            position: absolute;
+            width: 400px;
+            height: 500px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            will-change: transform, width, height, top, left;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Initial state: Spread in center */
+        .gallery-item:nth-child(1) { z-index: 5; transform: rotate(-5deg) translateX(-10%); }
+        .gallery-item:nth-child(2) { z-index: 4; transform: rotate(5deg) translateX(10%); }
+        .gallery-item:nth-child(3) { z-index: 3; transform: rotate(-10deg) translateX(-20%); }
+
+        /* FLIP State: Stacked in bottom corner */
+        .gallery.is-stacked {
+            justify-content: flex-start;
+            align-items: flex-end;
+            position: fixed;
+            bottom: 5vh;
+            left: 5vw;
+            width: auto;
+            height: auto;
+        }
+
+        .gallery.is-stacked .gallery-item {
+            position: relative;
+            width: 120px;
+            height: 160px;
+            margin-top: -100px; /* Overlap stacking */
+            transform: rotate(0) translateX(0) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* 
+           TEXT REVEAL
+        */
+        .hero-header {
+            margin-top: 4rem;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .line {
+            overflow: hidden;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .line span {
+            display: block;
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 6vw, 6rem);
+            font-weight: 600;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            transform: translateY(110%);
+            /* Initial state for individual reveal */
+        }
+
+        .sub-header {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+            margin-top: 1rem;
+            opacity: 0;
+        }
+
+        /* Premium Mouse Follower (Shery.js style) */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: var(--muted-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: multiply;
+            transform: translate(-50%, -50%);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="custom-cursor"></div>
+
+    <!-- Bars for the "wipe" reveal -->
+    <div class="reveal-overlay overlay-top"></div>
+    <div class="reveal-overlay overlay-bottom"></div>
+
+    <main class="hero-container">
+        <!-- Gallery transitioning from Hero to Stack -->
+        <div class="gallery">
+            <div class="gallery-item">
+                <img src="../../assets/images/scroll-pin-1.png" alt="Hero 1">
+            </div>
+            <div class="gallery-item">
+                <img src="../../assets/images/scroll-pin-2.png" alt="Hero 2">
+            </div>
+            <div class="gallery-item">
+                <img src="../../assets/images/scroll-pin-3.png" alt="Hero 3">
+            </div>
+        </div>
+
+        <div class="hero-header">
+            <div class="line"><span>Cinematic</span></div>
+            <div class="line"><span>Transitions</span></div>
+            <p class="sub-header">Laboratory Experiment 05</p>
+        </div>
+    </main>
+
+    <!-- Libs -->
+    <!-- Libs moved to head for standardization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+
+    <script>
+        // --- PREPARATION ---
+
+        // Register GSAP Plugins
+        gsap.registerPlugin(Flip, CustomEase, Draggable);
+        initGlobalNav('../../');
+
+        // Custom "Hop" Ease for that snappy, bouncy feel
+        CustomEase.create("hop", "M0,0 C0,0 0.056,0.442 0.175,0.442 0.294,0.442 0.332,0 0.332,0 0.332,0 0.414,1 0.671,1 0.991,1 1,0 1,0");
+
+        // Cursor Logic
+        const cursor = document.querySelector('.custom-cursor');
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, {
+                x: e.clientX,
+                y: e.clientY,
+                duration: 0.6,
+                ease: "power3.out"
+            });
+        });
+
+        // --- ORCHESTRATION ---
+
+        const tl = gsap.timeline({ delay: 0.5 });
+
+        // Phase 1: Block Wipe Reveal
+        tl.to(".overlay-top", {
+            clipPath: "inset(0 0 100% 0)",
+            duration: 1.4,
+            ease: "expo.inOut"
+        }, 0);
+
+        tl.to(".overlay-bottom", {
+            clipPath: "inset(100% 0 0 0)",
+            duration: 1.4,
+            ease: "expo.inOut"
+        }, 0);
+
+        // Phase 2: Hero Scale In (Subtle zoom)
+        tl.from(".gallery-item", {
+            scale: 1.5,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 1.2,
+            ease: "power4.out"
+        }, 0.6);
+
+        // Phase 3: The Flip (Layout shift to stack)
+        tl.add(() => {
+            const state = Flip.getState(".gallery-item");
+            
+            // Apply new layout
+            document.querySelector(".gallery").classList.add("is-stacked");
+            
+            // Animate Flip
+            Flip.from(state, {
+                duration: 1.4,
+                ease: "hop",
+                stagger: 0.05,
+                absolute: true, // Crucial for layout changes
+                onComplete: () => {
+                    // Unlock any hidden content if needed
+                }
+            });
+        }, 1.8);
+
+        // Phase 4: Text Reveal
+        tl.to(".line span", {
+            y: 0,
+            duration: 1,
+            stagger: 0.15,
+            ease: "power4.out"
+        }, 2.4);
+
+        tl.to(".sub-header", {
+            opacity: 1,
+            y: -10,
+            duration: 1
+        }, 3.0);
+
+        // --- RESTART TRIGGER ---
+        // Just for demo purposes, so you can see it again
+        document.body.addEventListener('click', () => {
+            window.location.reload();
+        });
+
+        console.log("%c REVEAL LAB: Orchestrated Sequence LOADED ", "background: #E8D5D0; color: #2D2D2D; font-weight: bold; padding: 4px;");
+    </script>
+</body>
+</html>
