@@ -8,7 +8,8 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&family=Inter:wght@300;400;600&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&family=Inter:wght@300;400;600&display=swap"
         rel="stylesheet">
     <!-- GSAP Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -18,22 +19,28 @@
     <style>
         :root {
             /* Neutrals */
-            --bg-base: #F5F5F0; /* Soft White */
+            --bg-base: #F5F5F0;
+            /* Soft White */
             --text-main: #2D2D2D;
             --muted-clay: #C8B0A8;
-            
+
             /* Category Colors (Pastels) */
-            --color-interactions: #B8D4E8; /* Muted Blue */
-            --color-navigation: #D4C9E3;   /* Pale Lavender */
-            --color-reveals: #E8D5D0;      /* Soft Blush */
-            --color-scroll: #C8D8CC;       /* Muted Sage */
-            --color-sliders: #F0D9D1;      /* Soft Peach */
-            
+            --color-interactions: #B8D4E8;
+            /* Muted Blue */
+            --color-navigation: #D4C9E3;
+            /* Pale Lavender */
+            --color-reveals: #E8D5D0;
+            /* Soft Blush */
+            --color-scroll: #C8D8CC;
+            /* Muted Sage */
+            --color-sliders: #F0D9D1;
+            /* Soft Peach */
+
             /* Accents (Vibrant Pastels) */
             --accent-pink: #F5A8C0;
             --accent-lavender: #C8A8F5;
             --accent-mint: #A8F5D8;
-            
+
             /* Spacing */
             --padding-canvas: 5vw;
         }
@@ -144,11 +151,14 @@
             text-decoration: none;
             color: inherit;
             pointer-events: auto;
-            cursor: grab; /* Interactive blocks */
-            transition: box-shadow 0.4s ease; /* Removed transform transition */
+            cursor: grab;
+            transition: box-shadow 0.4s ease;
+            /* Removed transform transition */
         }
 
-        .block:active { cursor: grabbing; }
+        .block:active {
+            cursor: grabbing;
+        }
 
         .block:hover {
             box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.08);
@@ -172,11 +182,40 @@
         }
 
         /* Specific Block Positions (Controlled Chaos) */
-        .block-interactions { top: 15%; left: 10%; background-color: var(--color-interactions); transform: rotate(-3deg); }
-        .block-navigation   { top: 25%; right: 12%; background-color: var(--color-navigation); transform: rotate(2deg); }
-        .block-reveals      { bottom: 20%; left: 15%; background-color: var(--color-reveals); transform: rotate(1deg); }
-        .block-scroll       { bottom: 15%; right: 10%; background-color: var(--color-scroll); transform: rotate(-4deg); }
-        .block-sliders      { top: 50%; right: 20%; background-color: var(--color-sliders); transform: rotate(3deg); }
+        .block-interactions {
+            top: 15%;
+            left: 10%;
+            background-color: var(--color-interactions);
+            transform: rotate(-3deg);
+        }
+
+        .block-navigation {
+            top: 25%;
+            right: 12%;
+            background-color: var(--color-navigation);
+            transform: rotate(2deg);
+        }
+
+        .block-reveals {
+            bottom: 20%;
+            left: 15%;
+            background-color: var(--color-reveals);
+            transform: rotate(1deg);
+        }
+
+        .block-scroll {
+            bottom: 15%;
+            right: 10%;
+            background-color: var(--color-scroll);
+            transform: rotate(-4deg);
+        }
+
+        .block-sliders {
+            top: 50%;
+            right: 20%;
+            background-color: var(--color-sliders);
+            transform: rotate(3deg);
+        }
 
         /* --- STICKERS / TAGS --- */
         .sticker {
@@ -190,25 +229,54 @@
             letter-spacing: 1px;
             border-radius: 20px;
             z-index: 15;
-            pointer-events: auto; /* Enable hover for stickers */
+            pointer-events: auto;
+            /* Enable hover for stickers */
             cursor: grab;
         }
 
-        .sticker:active { cursor: grabbing; }
+        .sticker:active {
+            cursor: grabbing;
+        }
 
         .sticker:hover {
             filter: brightness(1.1);
         }
 
-        .sticker-gsap { top: 40%; left: 30%; transform: rotate(15deg); background: var(--accent-pink); color: var(--text-main); }
-        .sticker-css  { bottom: 35%; right: 35%; transform: rotate(-10deg); background: var(--accent-mint); color: var(--text-main); }
-        .sticker-js   { top: 20%; right: 40%; transform: rotate(5deg); background: var(--accent-lavender); color: var(--text-main); }
+        .sticker-gsap {
+            top: 40%;
+            left: 30%;
+            transform: rotate(15deg);
+            background: var(--accent-pink);
+            color: var(--text-main);
+        }
+
+        .sticker-css {
+            bottom: 35%;
+            right: 35%;
+            transform: rotate(-10deg);
+            background: var(--accent-mint);
+            color: var(--text-main);
+        }
+
+        .sticker-js {
+            top: 20%;
+            right: 40%;
+            transform: rotate(5deg);
+            background: var(--accent-lavender);
+            color: var(--text-main);
+        }
 
         /* --- RESPONSIVE ADJUSTMENTS --- */
         @media (max-width: 768px) {
-            .bg-text { font-size: 15rem; }
-            .hero-headline { font-size: 2.5rem; }
-            .block { 
+            .bg-text {
+                font-size: 15rem;
+            }
+
+            .hero-headline {
+                font-size: 2.5rem;
+            }
+
+            .block {
                 padding: 1rem;
                 position: static;
                 transform: none !important;
@@ -216,6 +284,7 @@
                 width: 100%;
                 pointer-events: auto;
             }
+
             .category-blocks {
                 position: relative;
                 height: auto;
@@ -223,6 +292,7 @@
                 display: flex;
                 flex-direction: column;
             }
+
             .collage-container {
                 height: auto;
                 min-height: 100vh;
@@ -230,8 +300,14 @@
                 justify-content: flex-start;
                 padding-top: 15vh;
             }
-            .sticker { display: none; }
-            body { overflow-y: auto; }
+
+            .sticker {
+                display: none;
+            }
+
+            body {
+                overflow-y: auto;
+            }
         }
     </style>
 </head>
@@ -241,14 +317,15 @@
     <div class="grain-overlay"></div>
 
     <div class="collage-container">
-        
+
         <!-- Background Massive Word -->
         <h1 class="bg-text" id="bgText">BUILD</h1>
 
         <!-- Hero Content -->
         <div class="hero-content">
             <h2 class="hero-headline">High-End Animations.<br>Ready to Use.</h2>
-            <p class="hero-subtext">Reusable animation blocks built with HTML, CSS, JS, and GSAP. Curated for creative developers.</p>
+            <p class="hero-subtext">Reusable animation blocks built with HTML, CSS, JS, and GSAP. Curated for creative
+                developers.</p>
         </div>
 
         <!-- Stickers -->
@@ -298,37 +375,37 @@
                 duration: 1.5,
                 ease: "power4.out"
             })
-            .from(".hero-headline", {
-                y: 50,
-                opacity: 0,
-                duration: 1.2,
-                ease: "power3.out"
-            }, "-=1")
-            .from(".hero-subtext", {
-                opacity: 0,
-                duration: 1
-            }, "-=0.8")
-            .from(".block", {
-                scale: 0.8,
-                opacity: 0,
-                y: 50,
-                duration: 1,
-                stagger: 0.1,
-                ease: "back.out(1.7)"
-            }, "-=0.8")
-            .from(".sticker", {
-                scale: 0,
-                opacity: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: "back.out(2)"
-            }, "-=0.5")
-            .from(".global-nav-container", {
-                y: 100,
-                opacity: 0,
-                duration: 1,
-                ease: "power3.out"
-            }, "-=0.5");
+                .from(".hero-headline", {
+                    y: 50,
+                    opacity: 0,
+                    duration: 1.2,
+                    ease: "power3.out"
+                }, "-=1")
+                .from(".hero-subtext", {
+                    opacity: 0,
+                    duration: 1
+                }, "-=0.8")
+                .from(".block", {
+                    scale: 0.8,
+                    opacity: 0,
+                    y: 50,
+                    duration: 1,
+                    stagger: 0.1,
+                    ease: "back.out(1.7)"
+                }, "-=0.8")
+                .from(".sticker", {
+                    scale: 0,
+                    opacity: 0,
+                    duration: 0.8,
+                    stagger: 0.1,
+                    ease: "back.out(2)"
+                }, "-=0.5")
+                .from(".global-nav-container", {
+                    y: 100,
+                    opacity: 0,
+                    duration: 1,
+                    ease: "power3.out"
+                }, "-=0.5");
         };
 
         // 2. Mouse Parallax (Depth Effect)
@@ -368,14 +445,14 @@
 
         interactableElements.forEach(el => {
             const isSticker = el.classList.contains('sticker');
-            
+
             // Initial Animation Values
             const originalRotate = el.classList.contains('block-interactions') ? -3 :
-                                 el.classList.contains('block-navigation') ? 2 :
-                                 el.classList.contains('block-reveals') ? 1 :
-                                 el.classList.contains('block-scroll') ? -4 : 
-                                 el.classList.contains('block-sliders') ? 3 :
-                                 isSticker ? (el.classList.contains('sticker-gsap') ? 15 : el.classList.contains('sticker-css') ? -10 : 5) : 0;
+                el.classList.contains('block-navigation') ? 2 :
+                    el.classList.contains('block-reveals') ? 1 :
+                        el.classList.contains('block-scroll') ? -4 :
+                            el.classList.contains('block-sliders') ? 3 :
+                                isSticker ? (el.classList.contains('sticker-gsap') ? 15 : el.classList.contains('sticker-css') ? -10 : 5) : 0;
 
             // 1. GSAP Hover Logic
             el.addEventListener("mouseenter", () => {
@@ -405,13 +482,13 @@
 
             Draggable.create(el, {
                 type: "x,y",
-                onDragStart: function() {
+                onDragStart: function () {
                     el.dataset.interacted = "true";
                     activeZIndex++;
                     gsap.set(this.target, { zIndex: activeZIndex });
                     gsap.to(this.target, { scale: isSticker ? 1.3 : 1.1, rotation: 0, duration: 0.2 });
                 },
-                onDragEnd: function() {
+                onDragEnd: function () {
                     gsap.to(this.target, { scale: 1, rotation: 0, duration: 0.3, ease: "power2.out" });
                 }
             });
