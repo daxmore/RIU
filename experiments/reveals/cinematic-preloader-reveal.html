@@ -313,8 +313,6 @@
         </footer>
     </section>
 
-    </section>
-
     <script>
         // --- Helper: Text Splitting (Manual SplitText) ---
         function splitTextIntoChars(selector) {
@@ -393,6 +391,11 @@
                 stagger: 0.02,
                 ease: "expo.out"
             }, "-=1.2")
+                .to(".stagger-item", {
+                    y: 0,
+                    opacity: 1,
+                    duration: 1,
+                    stagger: 0.1,
                     ease: "power3.out"
                 }, "-=1");
 

@@ -49,6 +49,8 @@
         /* Custom Cursor Dot */
         #cursor-dot {
             position: fixed;
+            top: 0;
+            left: 0;
             width: 8px;
             height: 8px;
             background: var(--accent-color);
@@ -103,9 +105,13 @@
             will-change: transform;
             /* Applying the SVG turbulance filter on the parent for a "liquid" look */
             filter: url('#liquid');
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .follower-inner {
+            position: absolute;
             width: 100%;
             height: 100%;
             background: #222;
@@ -116,6 +122,11 @@
             will-change: transform, opacity;
             box-shadow: 0 50px 100px rgba(0,0,0,0.8);
         }
+
+        /* Collage Item Offsets */
+        .collage-1 { z-index: 3; }
+        .collage-2 { z-index: 2; transform: translate(20px, 20px) scale(0.8) rotate(5deg); }
+        .collage-3 { z-index: 1; transform: translate(-20px, -20px) scale(0.8) rotate(-5deg); }
 
         .follower-inner img, 
         .follower-inner video {
@@ -234,16 +245,24 @@
     <div class="grid-bg" id="grid"></div>
 
     <ul class="menu">
-        <li class="menu-item">            <a href="#" class="menu-link magnetic" data-type="image" data-src="../../assets/images/hero-bg.png">Vortex</a></li>
-        <li class="menu-item"><a href="#" class="menu-link magnetic" data-type="video" data-src="https://videos.pexels.com/video-files/8133333/8133333-hd_1920_1080_24fps.mp4">Kinetic</a></li>
-        <li class="menu-item"><a href="#" class="menu-link magnetic" data-type="video" data-src="https://videos.pexels.com/video-files/7578469/7578469-hd_1920_1080_25fps.mp4">Rupture</a></li>
-        <li class="menu-item"><a href="#" class="menu-link magnetic" data-type="video" data-src="https://videos.pexels.com/video-files/3840449/3840449-hd_1920_1080_25fps.mp4">Static</a></li>
+        <li class="menu-item">
+            <a href="#" class="menu-link magnetic" data-type="image" data-src="../../assets/images/hero-bg.png,../../assets/images/gallery-1.png,../../assets/images/hero-1.png">Vortex</a>
+        </li>
+        <li class="menu-item">
+            <a href="#" class="menu-link magnetic" data-type="video" data-src="https://videos.pexels.com/video-files/8133333/8133333-hd_1920_1080_24fps.mp4,https://videos.pexels.com/video-files/7578469/7578469-hd_1920_1080_25fps.mp4,https://videos.pexels.com/video-files/3840449/3840449-hd_1920_1080_25fps.mp4">Kinetic</a>
+        </li>
+        <li class="menu-item">
+            <a href="#" class="menu-link magnetic" data-type="video" data-src="https://videos.pexels.com/video-files/7578469/7578469-hd_1920_1080_25fps.mp4,https://videos.pexels.com/video-files/3840449/3840449-hd_1920_1080_25fps.mp4,../../assets/images/gallery-2.png">Rupture</a>
+        </li>
+        <li class="menu-item">
+            <a href="#" class="menu-link magnetic" data-type="image" data-src="../../assets/images/hero-2.png,../../assets/images/gallery-3.png,../../assets/images/hero-3.png">Static</a>
+        </li>
     </ul>
 
     <div class="follower-wrapper" id="follower">
-        <div class="follower-inner" id="inner">
-            <!-- Media Injected Here -->
-        </div>
+        <div class="follower-inner collage-1" id="inner1"></div>
+        <div class="follower-inner collage-2" id="inner2"></div>
+        <div class="follower-inner collage-3" id="inner3"></div>
     </div>
     <div class="follower-echo" id="echo"></div>
 
@@ -316,7 +335,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const follower = document.getElementById('follower');
-            const inner = document.getElementById('inner');
+            const inners = [
+                document.getElementById('inner1'),
+                document.getElementById('inner2'),
+                document.getElementById('inner3')
+            ];
             const echo = document.getElementById('echo');
             const dot = document.getElementById('cursor-dot');
             const grid = document.getElementById('grid');
@@ -324,54 +347,57 @@
 
             // --- State for Velocity Tracking ---
             let mouse = { x: 0, y: 0 };
-            let pos = { x: 0, y: 0 };
-            let echoPos = { x: 0, y: 0 };
             let vel = { x: 0, y: 0 };
 
-            // --- GSAP Setters ---
-            const followX = gsap.quickTo(follower, "x", { duration: 0.6, ease: "power3" });
-            const followY = gsap.quickTo(follower, "y", { duration: 0.6, ease: "power3" });
-            const echoX = gsap.quickTo(echo, "x", { duration: 0.9, ease: "power2" });
-            const echoY = gsap.quickTo(echo, "y", { duration: 0.9, ease: "power2" });
-            const dotX = gsap.quickTo(dot, "x", { duration: 0.1, ease: "none" });
-            const dotY = gsap.quickTo(dot, "y", { duration: 0.1, ease: "none" });
+            // --- GSAP Setters (Reduced duration for better "alignment") ---
+            const followX = gsap.quickTo(follower, "x", { duration: 0.15, ease: "power2.out" });
+            const followY = gsap.quickTo(follower, "y", { duration: 0.15, ease: "power2.out" });
+            const echoX = gsap.quickTo(echo, "x", { duration: 0.4, ease: "power1.out" });
+            const echoY = gsap.quickTo(echo, "y", { duration: 0.4, ease: "power1.out" });
+            const dotX = gsap.quickTo(dot, "x", { duration: 0.05, ease: "none" });
+            const dotY = gsap.quickTo(dot, "y", { duration: 0.05, ease: "none" });
 
             window.addEventListener('mousemove', (e) => {
+                const clientX = e.clientX;
+                const clientY = e.clientY;
+
                 // Update velocity
-                vel.x = e.clientX - mouse.x;
-                vel.y = e.clientY - mouse.y;
+                vel.x = clientX - mouse.x;
+                vel.y = clientY - mouse.y;
 
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
+                mouse.x = clientX;
+                mouse.y = clientY;
 
-                // Sync cursor dot
-                dotX(e.clientX - 4);
-                dotY(e.clientY - 4);
+                // Sync cursor dot (Center alignment fix: subtract radius)
+                dotX(clientX - 4);
+                dotY(clientY - 4);
 
-                // Sync Follower
-                followX(e.clientX - 225);
-                followY(e.clientY - 150);
+                // Sync Follower (Center alignment fix: subtract half-width/half-height)
+                followX(clientX - 225);
+                followY(clientY - 150);
 
                 // Sync Echo
-                echoX(e.clientX - 225);
-                echoY(e.clientY - 150);
+                echoX(clientX - 225);
+                echoY(clientY - 150);
 
                 // Grid Tilt Effect
                 gsap.to(grid, {
-                    x: (e.clientX - window.innerWidth/2) * 0.1,
-                    y: (e.clientY - window.innerHeight/2) * 0.1,
+                    x: (clientX - window.innerWidth/2) * 0.1,
+                    y: (clientY - window.innerHeight/2) * 0.1,
                     duration: 1
                 });
 
-                // Momentum Skew & Scale
+                // Momentum Skew & Scale applied to all collage items
                 const skewX = gsap.utils.clamp(-20, 20, vel.x * 0.4);
                 const scale = 1 + Math.abs(vel.x + vel.y) * 0.001;
 
-                gsap.to(inner, {
-                    skewX: skewX,
-                    scaleX: scale,
-                    duration: 0.4,
-                    ease: "power2.out"
+                inners.forEach(inner => {
+                    gsap.to(inner, {
+                        skewX: skewX,
+                        scaleX: scale,
+                        duration: 0.4,
+                        ease: "power2.out"
+                    });
                 });
             });
 
@@ -396,24 +422,43 @@
                     gsap.to(link, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
                 });
 
-                // Hover Media Logic
+                // Hover Media Logic (Collage Implementation)
                 link.addEventListener('mouseenter', () => {
-                    const src = link.dataset.src;
+                    const srcs = link.dataset.src.split(',');
                     const type = link.dataset.type;
 
-                    inner.innerHTML = '';
-                    if (type === 'image') {
-                        inner.innerHTML = `<img src="${src}">`;
-                    } else {
-                        inner.innerHTML = `<video src="${src}" autoplay muted loop></video>`;
-                    }
+                    inners.forEach((inner, index) => {
+                        inner.innerHTML = '';
+                        const src = srcs[index] || srcs[0]; // Fallback to first if not enough srcs
+                        
+                        // Check if specific source is an image or video based on extension if not specified
+                        const isImage = src.toLowerCase().endsWith('.png') || src.toLowerCase().endsWith('.jpg') || type === 'image';
 
-                    gsap.to(inner, { opacity: 1, scale: 1, duration: 0.4 });
+                        if (isImage) {
+                            inner.innerHTML = `<img src="${src}">`;
+                        } else {
+                            inner.innerHTML = `<video src="${src}" autoplay muted loop></video>`;
+                        }
+
+                        // Animate entry for collage items
+                        gsap.to(inner, { 
+                            opacity: 1, 
+                            scale: index === 0 ? 1 : 0.8, // Main item is larger
+                            x: index === 1 ? 40 : index === 2 ? -40 : 0, // Staggered offsets
+                            y: index === 1 ? 40 : index === 2 ? -40 : 0,
+                            duration: 0.5,
+                            delay: index * 0.05,
+                            ease: "power2.out"
+                        });
+                    });
+
                     gsap.to(echo, { opacity: 0.3, duration: 0.4 });
                 });
 
                 link.addEventListener('mouseleave', () => {
-                    gsap.to(inner, { opacity: 0, scale: 0.8, duration: 0.3 });
+                    inners.forEach(inner => {
+                        gsap.to(inner, { opacity: 0, scale: 0.8, x: 0, y: 0, duration: 0.3 });
+                    });
                     gsap.to(echo, { opacity: 0, duration: 0.3 });
                 });
             });

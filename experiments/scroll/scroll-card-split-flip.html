@@ -210,33 +210,42 @@
         gsap.registerPlugin(ScrollTrigger, Draggable);
         initGlobalNav('../../');
 
+        // Set initial state — cards start slightly below and transparent for a smooth entrance
+        gsap.set(".card-container", { opacity: 0, y: 60 });
+
         const tl = gsap.timeline({
             scrollTrigger: {
                 trigger: "#animation-container",
                 start: "top top",
-                end: "+=200%", // Shortened scroll distance
-                scrub: 1,
+                end: "+=300%", // Longer scroll = more breathing room per phase
+                scrub: 0.8,   // Smooth interpolation instead of frame-snapping
                 pin: true,
                 anticipatePin: 1
             }
         });
 
-        // 1. Separate
-        tl.to(".card-container", { gap: "2rem", duration: 1.5, ease: "power1.inOut" }, 0)
-          .to(".card", { borderRadius: "1.2rem", duration: 1, ease: "power1.inOut" }, 0)
-          .to("#bg-grid", { scale: 3, duration: 4, ease: "none" }, 0); // Scale the grid continuously
+        // Phase 0: Smooth Entrance (fade in + rise up)
+        tl.to(".card-container", { opacity: 1, y: 0, duration: 1.5, ease: "power2.out" }, 0);
 
-        // 2. Fan Out Position (Matching the screenshot angles)
-        tl.to(".card-wrapper:nth-child(1)", { rotateZ: -8, x: -20, duration: 1, ease: "power2.out" }, 1)
-          .to(".card-wrapper:nth-child(3)", { rotateZ: 8, x: 20, duration: 1, ease: "power2.out" }, 1);
+        // Phase 1: Separate cards + round corners
+        tl.to(".card-container", { gap: "2rem", duration: 2, ease: "power1.inOut" }, 1)
+          .to(".card", { borderRadius: "1.2rem", duration: 1.5, ease: "power1.inOut" }, 1)
+          .to("#bg-grid", { scale: 3, duration: 6, ease: "none" }, 0);
 
-        // 3. Flip All at Once (with very very slight difference)
+        // Phase 2: Fan Out (gentle rotation)
+        tl.to(".card-wrapper:nth-child(1)", { rotateZ: -8, x: -20, duration: 1.5, ease: "power2.out" }, 2.5)
+          .to(".card-wrapper:nth-child(3)", { rotateZ: 8, x: 20, duration: 1.5, ease: "power2.out" }, 2.5);
+
+        // Phase 3: Flip All (with a soft stagger)
         tl.to(".card", {
             rotateY: 180,
-            duration: 2,
-            stagger: 0.08, // Very slight difference
+            duration: 2.5,
+            stagger: 0.1,
             ease: "power2.inOut"
-        }, 2);
+        }, 4);
+
+        // Phase 4: Hold — empty space so the user can read the card backs before unpin
+        // (the timeline just "sits" here for 1 unit of scroll)
 
     </script>
 </body>

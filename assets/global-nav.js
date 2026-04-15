@@ -23,6 +23,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/interactions/rogue-hover-reveal.html" class="dropdown-link">Rogue Hover</a>
                     <a href="${relPath}experiments/interactions/physics-service-reveal.html" class="dropdown-link">Physics Service</a>
                     <a href="${relPath}experiments/interactions/terminal-scramble-grid.html" class="dropdown-link">Terminal Scramble</a>
+                    <a href="${relPath}experiments/interactions/magnetic-grid-highlight.html" class="dropdown-link">Magnetic Highlight</a>
                     <a href="${relPath}experiments/interactions/infinite-3d-tunnel.html" class="dropdown-link">3D Tunnel</a>
                 </div>
             </div>
@@ -34,6 +35,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/navigation/navigation-system.html" class="dropdown-link">Nav System</a>
                     <a href="${relPath}experiments/navigation/radial-aperture-reveal.html" class="dropdown-link">Aperture Reveal</a>
                     <a href="${relPath}experiments/navigation/push-down-reveal.html" class="dropdown-link">Push-Down</a>
+                    <a href="${relPath}experiments/navigation/curved-wipe-menu.html" class="dropdown-link">Curved Wipe</a>
                 </div>
             </div>
 
@@ -42,11 +44,13 @@ function initGlobalNav(relPath = "./") {
                 <div class="dropdown">
                     <a href="${relPath}experiments/reveals/cinematic-preloader-reveal.html" class="dropdown-link">Preloader Reveal</a>
                     <a href="${relPath}experiments/reveals/fluid-mask-reveal.html" class="dropdown-link">Fluid Mask</a>
-                    <a href="${relPath}experiments/reveals/hero-orchestrated-reveal.html" class="dropdown-link">Orchestrated Hero</a>
+                    <a href="${relPath}experiments/reveals/snake-transition.html" class="dropdown-link">Snake Transition</a>
                     <a href="${relPath}experiments/reveals/staggered-grid-reveal.html" class="dropdown-link">Grid Reveal</a>
                     <a href="${relPath}experiments/reveals/staggered-folder-reveal.html" class="dropdown-link">Folder Reveal</a>
                     <a href="${relPath}experiments/reveals/center-out-clip-path-image-reveal.html" class="dropdown-link">Clip Path</a>
                     <a href="${relPath}experiments/reveals/cinematic-zoom-reveal.html" class="dropdown-link">Zoom Reveal</a>
+                    <a href="${relPath}experiments/reveals/landing-page-reveal.html" class="dropdown-link">Landing Reveal</a>
+                    <a href="${relPath}experiments/reveals/diagonal-swoop-preloader.html" class="dropdown-link">Diagonal Swoop</a>
                 </div>
             </div>
 
@@ -54,11 +58,15 @@ function initGlobalNav(relPath = "./") {
                 <span class="global-nav-link has-dropdown">Scroll</span>
                 <div class="dropdown">
                     <a href="${relPath}experiments/scroll/sticky-scroll-cards.html" class="dropdown-link">Sticky Cards</a>
+                    <a href="${relPath}experiments/scroll/sticky-stacking-cards.html" class="dropdown-link">Stacking Cards</a>
                     <a href="${relPath}experiments/scroll/cinematic-scroll-slider-v3.html" class="dropdown-link">Scroll Slider V3</a>
                     <a href="${relPath}experiments/scroll/pinned-hero.html" class="dropdown-link">Pinned Hero V1</a>
                     <a href="${relPath}experiments/scroll/pinned-hero-v2.html" class="dropdown-link">Pinned Hero V2</a>
                     <a href="${relPath}experiments/scroll/scroll-card-split-flip.html" class="dropdown-link">Split Flip</a>
                     <a href="${relPath}experiments/scroll/wave-scroll.html" class="dropdown-link">Wave Scroll</a>
+                    <a href="${relPath}experiments/scroll/scroll-zoom-parallax.html" class="dropdown-link">Cinematic Zoom</a>
+                    <a href="${relPath}experiments/scroll/scroll-mask-parallax.html" class="dropdown-link">Mask Reveal</a>
+                    <a href="${relPath}experiments/scroll/winding-path-scroll.html" class="dropdown-link">Winding Path</a>
                 </div>
             </div>
 
