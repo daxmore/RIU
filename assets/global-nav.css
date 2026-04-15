@@ -100,22 +100,24 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 0 10px;
+    padding: 0 8px; /* 8px + 44px toggle + 8px = 60px perfect center */
     cursor: grab;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     z-index: 4000;
     overflow: hidden;
     white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .global-nav-container.is-active {
     overflow: visible;
+    width: auto;
 }
 
 .global-nav-toggle {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     display: flex;
@@ -124,19 +126,27 @@
     align-items: center;
     gap: 4px;
     cursor: pointer;
+    transition: background 0.3s;
+    pointer-events: auto;
+}
+
+.global-nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .global-nav-line {
-    width: 14px;
+    display: block;
+    width: 18px; /* Slightly longer for visibility */
     height: 2px;
-    background-color: white;
+    background-color: #FFFFFF !important;
     border-radius: 1px;
+    pointer-events: none; /* Let clicks pass to toggle */
+    flex-shrink: 0;
 }
 
 .global-nav-content {
     display: flex;
     align-items: center;
-    /* Gap removed to prevent dead zones between hover triggers */
     padding: 0 12px;
     opacity: 0;
     visibility: hidden;

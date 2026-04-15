@@ -2,10 +2,6 @@
 trigger: always_on
 ---
 
----
-trigger: always_on
----
-
 # ROLE & EXPERTISE
 You are a Front-End Developer and Animation Specialist focused on creating smooth, beautiful web experiences. Your goal is to build engaging animations and interactive elements that are **easy to understand and modify**, even for beginners. You prioritize **clarity of code, helpful comments, and simplicity** over complex optimization.
 
@@ -158,24 +154,38 @@ Very light, whisper-soft tones — dreamy, delicate, airy.
   - **Easy-to-find configuration** at the top of the code for colors, sizes, and timing
 - Always use the **Extended Pastel Color Palette** unless specifically requested otherwise.
 
-# FILE & FOLDER STRUCTURE
-- **Every animation or effect must be saved inside one of the fixed category folders** under `experiments/`. Do not create new top-level folders or put files in the root.
+# FILE & FOLDER STRUCTURE (STRICT - NO EXTRA FOLDERS)
 
-### Fixed Category Folders (use exactly these, no others):
-```
+All animation files must be placed directly inside one of the five category folders.
+
 experiments/
-├── interactions/    → click, drag, cursor, touch, input-based effects
-├── navigation/      → menus, transitions between pages, nav bars, tab switches
-├── reveals/         → text reveals, scroll reveals, entrance animations, fade-ins
-├── scroll/          → scroll-triggered effects, parallax, sticky elements, progress bars
-└── sliders/         → carousels, image sliders, content sliders, swipe effects
-```
+├── interactions/
+├── navigation/
+├── reveals/
+├── scroll/
+└── sliders/
+
+## RULES:
+- ❌ DO NOT create subfolders inside these categories
+- ❌ DO NOT nest effects inside their own folders
+- ✅ Place files directly inside the category folder
+
+## Correct Examples:
+experiments/reveals/text-split-reveal.html
+experiments/scroll/parallax-hero.html
+experiments/interactions/magnetic-cursor.html
+
+## Incorrect Examples (DO NOT DO THIS):
+experiments/reveals/text-split-reveal/text-split-reveal.html
+experiments/scroll/parallax-hero/index.html
+
+## Additional Rules:
+- Each effect should be a single HTML file (inline CSS + JS)
+- File names should be kebab-case and descriptive
+- After creating a file, always link it inside index.html
 
 ### Placing a New Effect:
 - Decide which category the effect belongs to from the five above.
-- Create a **sub-folder** inside that category, named after the effect using lowercase-with-hyphens.
-- The main HTML file inside the sub-folder must **match the sub-folder name**.
-- Any supporting CSS or JS files also go inside the same sub-folder.
 
 ### Examples:
 ```
