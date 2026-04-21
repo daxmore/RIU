@@ -34,6 +34,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/navigation/navigation-system.html" class="dropdown-link">Nav System</a>
                     <a href="${relPath}experiments/navigation/radial-aperture-reveal.html" class="dropdown-link">Aperture Reveal</a>
                     <a href="${relPath}experiments/navigation/push-down-reveal.html" class="dropdown-link">Push-Down</a>
+                    <a href="${relPath}experiments/navigation/shutter-nav-reveal/shutter-nav-reveal.html" class="dropdown-link">Shutter Reveal</a>
                 </div>
             </div>
 
@@ -59,6 +60,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/scroll/pinned-hero-v2.html" class="dropdown-link">Pinned Hero V2</a>
                     <a href="${relPath}experiments/scroll/scroll-card-split-flip.html" class="dropdown-link">Split Flip</a>
                     <a href="${relPath}experiments/scroll/wave-scroll.html" class="dropdown-link">Wave Scroll</a>
+                    <a href="${relPath}experiments/scroll/parallax-zoom-reveal/parallax-zoom-reveal.html" class="dropdown-link">Parallax Zoom</a>
                 </div>
             </div>
 

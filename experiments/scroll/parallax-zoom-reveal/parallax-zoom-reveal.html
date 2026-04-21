@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallax Zoom Reveal | UI Laboratory</title>
+    
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/global-nav.css">
+    
+    <style>
+        /* 
+           CONFIGURATION & DESIGN TOKENS
+           Colors: Muted Pastel Palette (per Guidelines)
+        */
+        :root {
+            --dusty-rose: #E8C4BC;
+            --muted-sage: #C8CCAA;
+            --arctic-mist: #D4EAF0;
+            --soft-white: #F5F5F0;
+            --text-dark: #2D2D2D;
+            
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Outfit', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--soft-white);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+
+        /* 
+           LAYOUT 
+        */
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            background: var(--soft-white);
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 12vw, 10rem);
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+        }
+
+        /* The Sticky Component */
+        .zoom-gallery-container {
+            position: relative;
+            height: 300vh; /* Scroll space for the animation */
+            width: 100%;
+        }
+
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--soft-white);
+        }
+
+        /* The Gridded Gallery */
+        .gallery-grid {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2vw;
+            width: 120vw; /* Wider than screen for horizontal context */
+            transform-origin: center center;
+            will-change: transform;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 2vw;
+            will-change: transform;
+        }
+
+        /* Specific Shifts for Parallax */
+        .column:nth-child(even) { transform: translateY(-10%); }
+        .column:nth-child(odd) { transform: translateY(10%); }
+
+        .image-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/5;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #eee;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.15); /* Initial scale for zoom room */
+            will-change: transform;
+        }
+
+        /* Narrative Overlay */
+        .footer-reveal {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--dusty-rose);
+            padding: 5vw;
+        }
+
+        .footer-reveal h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 6vw, 5rem);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Responsive Tweaks */
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(3, 1fr);
+                width: 150vw;
+            }
+            .column:nth-child(4), .column:nth-child(5) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <main id="smooth-wrapper">
+        <div id="smooth-content">
+            
+            <!-- Hero -->
+            <section class="hero">
+                <div>
+                    <p style="text-transform: uppercase; letter-spacing: 5px; font-size: 0.9rem; margin-bottom: 1rem; opacity: 0.6;">Experiment 05</p>
+                    <h1>PARALLAX<br>PERSPECTIVE</h1>
+                </div>
+            </section>
+
+            <!-- Sticky Zoom Gallery -->
+            <section class="zoom-gallery-container" id="zoomTrigger">
+                <div class="sticky-wrapper" id="stickyWrapper">
+                    
+                    <div class="gallery-grid" id="galleryGrid">
+                        
+                        <!-- Column 1 -->
+                        <div class="column col-left-far">
+                            <div class="image-box"><img src="../../../assets/images/parallax-zoom-1.png" alt="Architecture"></div>
+                            <div class="image-box"><img src="../../../assets/images/parallax-zoom-2.png" alt="Nature"></div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="column col-left-near">
+                            <div class="image-box"><img src="../../../assets/images/parallax-zoom-3.png" alt="Texture"></div>
+                            <div class="image-box"><img src="../../../assets/images/parallax-zoom-4.png" alt="Minimal"></div>
+                        </div>
+
+                        <!-- Column 3 (Center Focus) -->
+                        <div class="column col-center">
+                            <div class="image-box" style="aspect-ratio: 16/9; background: var(--arctic-mist);"><img src="../../../assets/images/parallax-zoom-5.png" alt="Main Architecture" class="center-img"></div>
+                            <div class="image-box"><img src="../../../assets/images/parallax-zoom-6.png" alt="Secondary"></div>
+                        </div>
+
+                        <!-- Column 4 -->
+                        <div class="column col-right-near">
+                            <div class="image-box"><img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=800&auto=format&fit=crop" alt="Water Surface"></div>
+                            <div class="image-box"><img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop" alt="Structural Geometry"></div>
+                        </div>
+
+                        <!-- Column 5 -->
+                        <div class="column col-right-far">
+                            <div class="image-box"><img src="https://images.unsplash.com/photo-1496062031456-07b8f162a322?q=80&w=800&auto=format&fit=crop" alt="Minimal Flora"></div>
+                            <div class="image-box"><img src="https://images.unsplash.com/photo-1481026469463-66327c86e544?q=80&w=800&auto=format&fit=crop" alt="Modernist Silhouette"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Footer Reveal -->
+            <section class="footer-reveal">
+                <h2>Depth Defined by Motion</h2>
+                <p style="max-width: 500px; text-align: center; line-height: 1.6; opacity: 0.8;">The zoom-in sequence serves as a bridge between curiosity and clarity, revealing hidden details through effortless motion.</p>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- LIBS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.27/bundled/lenis.min.js"></script>
+    <script src="../../../assets/global-nav.js"></script>
+
+    <script>
+        // Init GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Global Nav
+        initGlobalNav('../../../');
+
+        // Lenis Smooth Scroll
+        const lenis = new Lenis({
+            duration: 1.5,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            wheelMultiplier: 1.1
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // ANIMATION LOGIC
+        
+        const gallery = document.querySelector('#galleryGrid');
+        const columns = gsap.utils.toArray('.column');
+        const centerImg = document.querySelector('.center-img');
+
+        // Master Timeline linked to Scroll
+        const zoomTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: "#zoomTrigger",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1, // Luxurious scrub
+                onUpdate: (self) => {
+                    // Optional: Track progress logic here
+                }
+            }
+        });
+
+        // 1. Scale the Entire Grid
+        zoomTl.to(gallery, {
+            scale: 3.5,
+            ease: "none"
+        }, 0);
+
+        // 2. Parallax Columns (Far columns move faster)
+        zoomTl.to('.col-left-far', { yPercent: -50, ease: "none" }, 0);
+        zoomTl.to('.col-left-near', { yPercent: -20, ease: "none" }, 0);
+        zoomTl.to('.col-right-near', { yPercent: 20, ease: "none" }, 0);
+        zoomTl.to('.col-right-far', { yPercent: 50, ease: "none" }, 0);
+
+        // 3. Counter-Scale Central Image
+        // As the grid zooms IN, the central image zooms OUT slightly to stay legible
+        zoomTl.to(centerImg, {
+            scale: 1, /* From initial 1.15 in CSS */
+            ease: "none"
+        }, 0);
+
+        // 4. Background Fade (Optional enhancement)
+        zoomTl.to('#stickyWrapper', {
+            backgroundColor: '#E8C4BC',
+            duration: 0.5
+        }, 0.5);
+
+        // Accessibility Console Log
+        console.log("%c PARALLAX ZOOM ACTIVE ", "background: #D4EAF0; color: #2D2D2D; font-weight: bold; padding: 4px;");
+    </script>
+</body>
+</html>
