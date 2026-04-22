@@ -51,7 +51,6 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/reveals/cinematic-zoom-reveal.html" class="dropdown-link">Zoom Reveal</a>
                     <a href="${relPath}experiments/reveals/landing-page-reveal.html" class="dropdown-link">Landing Reveal</a>
                     <a href="${relPath}experiments/reveals/diagonal-swoop-preloader.html" class="dropdown-link">Diagonal Swoop</a>
-                    <a href="${relPath}experiments/reveals/frontend-skill-test.html" class="dropdown-link">Skill Test</a>
                 </div>
             </div>
 
