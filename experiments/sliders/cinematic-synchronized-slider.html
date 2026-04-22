@@ -185,9 +185,17 @@
             left: 10vw;
             width: 80vw;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: flex-end;
             z-index: 100;
+        }
+
+        .controls-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1.5rem;
+            pointer-events: auto;
         }
 
         .nav-arrows {
@@ -221,7 +229,6 @@
             height: 2px;
             background: rgba(255, 255, 255, 0.1);
             position: relative;
-            margin-bottom: 25px;
         }
 
         .progress-bar {
@@ -266,6 +273,10 @@
                 order: -1;
             }
 
+            .controls-right {
+                align-items: center;
+            }
+
             .testimonial-box {
                 display: none;
             }
@@ -306,7 +317,8 @@
 
         <!-- UI LAYER -->
         <div class="ui-layer">
-            <div class="controls-left">
+            <div class="controls-right">
+                <div class="slide-counter" id="counter">01</div>
                 <div class="progress-indicator">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
@@ -315,8 +327,6 @@
                     <button class="arrow" id="nextBtn">&rarr;</button>
                 </div>
             </div>
-
-            <div class="slide-counter" id="counter">01</div>
         </div>
     </div>
 

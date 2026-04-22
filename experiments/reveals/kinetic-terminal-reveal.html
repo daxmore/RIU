@@ -133,36 +133,6 @@
         }
 
         /* 
-           TRIGGER BUTTON
-        */
-        .engage-btn {
-            position: absolute;
-            bottom: 15vh;
-            padding: 1rem 3rem;
-            background: transparent;
-            border: 1px solid var(--text-mono);
-            color: var(--text-mono);
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            cursor: pointer;
-            opacity: 0;
-            visibility: hidden;
-            transition: background 0.3s, color 0.3s;
-            z-index: 2001;
-        }
-
-        .engage-btn:hover {
-            background: var(--text-mono);
-            color: var(--bg-dark);
-        }
-
-        .engage-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* 
            HERO SECTION
         */
         .hero-section {
@@ -231,7 +201,6 @@
         @media (max-width: 768px) {
             .terminal-container { padding: 0 1rem; }
             .svg-container { width: 150px; height: 150px; }
-            .engage-btn { width: 80%; text-align: center; bottom: 10vh; }
         }
 
     </style>
@@ -257,7 +226,6 @@
             <div class="terminal-line">> STANDBY FOR INPUT.</div>
         </div>
 
-        <button class="engage-btn" id="engageBtn">Engage</button>
     </div>
 
     <!-- HERO SECTION -->
@@ -297,7 +265,12 @@
         gsap.registerPlugin(CustomEase);
         CustomEase.create("shutter", "M0,0 C0.64,0 0.35,1 1,1");
 
-        const introTL = gsap.timeline();
+        const introTL = gsap.timeline({
+            onComplete: () => {
+                // Short delay for breathability after 100%
+                gsap.delayedCall(0.5, () => exitTL.play());
+            }
+        });
         const exitTL = gsap.timeline({ paused: true });
 
         // introTL: Terminal Boot
@@ -325,20 +298,7 @@
                 gsap.set("#circle", { strokeDashoffset: offset });
             }
         }, 0.5);
-
-        introTL.to("#engageBtn", {
-            autoAlpha: 1,
-            y: -10,
-            duration: 1,
-            ease: "back.out(1.7)"
-        }, "-=0.5");
-
         // exitTL: The Wipe Reveal
-        document.getElementById('engageBtn').addEventListener('click', () => {
-            exitTL.play();
-        });
-
-        exitTL.to("#engageBtn", { autoAlpha: 0, scale: 0.8, duration: 0.4 });
         
         exitTL.to("#circle", {
             strokeDashoffset: 440,
