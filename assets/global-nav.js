@@ -34,7 +34,6 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/navigation/navigation-system.html" class="dropdown-link">Nav System</a>
                     <a href="${relPath}experiments/navigation/radial-aperture-reveal.html" class="dropdown-link">Aperture Reveal</a>
                     <a href="${relPath}experiments/navigation/push-down-reveal.html" class="dropdown-link">Push-Down</a>
-                    <a href="${relPath}experiments/navigation/shutter-nav-reveal/shutter-nav-reveal.html" class="dropdown-link">Shutter Reveal</a>
                 </div>
             </div>
 
@@ -48,6 +47,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/reveals/staggered-folder-reveal.html" class="dropdown-link">Folder Reveal</a>
                     <a href="${relPath}experiments/reveals/center-out-clip-path-image-reveal.html" class="dropdown-link">Clip Path</a>
                     <a href="${relPath}experiments/reveals/cinematic-zoom-reveal.html" class="dropdown-link">Zoom Reveal</a>
+                    <a href="${relPath}experiments/reveals/shutter-nav-reveal.html" class="dropdown-link">Shutter Reveal</a>
                 </div>
             </div>
 
@@ -60,7 +60,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/scroll/pinned-hero-v2.html" class="dropdown-link">Pinned Hero V2</a>
                     <a href="${relPath}experiments/scroll/scroll-card-split-flip.html" class="dropdown-link">Split Flip</a>
                     <a href="${relPath}experiments/scroll/wave-scroll.html" class="dropdown-link">Wave Scroll</a>
-                    <a href="${relPath}experiments/scroll/parallax-zoom-reveal/parallax-zoom-reveal.html" class="dropdown-link">Parallax Zoom</a>
+                    <a href="${relPath}experiments/scroll/parallax-zoom-reveal.html" class="dropdown-link">Parallax Zoom</a>
                 </div>
             </div>
 
@@ -95,9 +95,9 @@ function initGlobalNav(relPath = "./") {
     // Expand/Collapse Timeline
     const tl = gsap.timeline({ paused: true });
     tl.to(menu, { width: "auto", maxWidth: "90vw", borderRadius: "30px", duration: 0.6, ease: "back.out(1.5)" })
-      .to(l1, { y: 3, rotate: 45, duration: 0.3 }, 0)
-      .to(l2, { y: -3, rotate: -45, duration: 0.3 }, 0)
-      .to(content, { autoAlpha: 1, duration: 0.3 }, 0.2);
+        .to(l1, { y: 3, rotate: 45, duration: 0.3 }, 0)
+        .to(l2, { y: -3, rotate: -45, duration: 0.3 }, 0)
+        .to(content, { autoAlpha: 1, duration: 0.3 }, 0.2);
 
     // Toggle Handler
     toggle.addEventListener('click', () => {
