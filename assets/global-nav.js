@@ -48,6 +48,8 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/reveals/center-out-clip-path-image-reveal.html" class="dropdown-link">Clip Path</a>
                     <a href="${relPath}experiments/reveals/cinematic-zoom-reveal.html" class="dropdown-link">Zoom Reveal</a>
                     <a href="${relPath}experiments/reveals/shutter-nav-reveal.html" class="dropdown-link">Shutter Reveal</a>
+                    <a href="${relPath}experiments/reveals/kinetic-terminal-reveal.html" class="dropdown-link">Kinetic Terminal</a>
+                    <a href="${relPath}experiments/reveals/overlay-wipe-transition.html" class="dropdown-link">Overlay Wipe</a>
                 </div>
             </div>
 
@@ -72,6 +74,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/sliders/arc-slider.html" class="dropdown-link">Arc Slider</a>
                     <a href="${relPath}experiments/sliders/circular-text-gallery.html" class="dropdown-link">Circular Gallery</a>
                     <a href="${relPath}experiments/sliders/mood-layouts.html" class="dropdown-link">Mood Layouts</a>
+                    <a href="${relPath}experiments/sliders/cinematic-synchronized-slider.html" class="dropdown-link">Cinematic Sync Slider</a>
                 </div>
             </div>
         </div>
