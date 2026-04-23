@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic Terminal Reveal | UI Laboratory</title>
+    
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/global-nav.css">
+    
+    <!-- GSAP Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+    <script src="../../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           DESIGN SYSTEM: Extended Pastel Palette
+        */
+        :root {
+            /* Terminal Phase (Neutrals) */
+            --bg-dark: #0A0A0A;
+            --text-mono: #E0DDD8; /* Pale Silver */
+            --accent-silver: #B0ACA8; /* Warm Gray */
+            
+            /* Hero Phase (Muted Earthy) */
+            --hero-bg: #F5F2E8; /* Vanilla Haze */
+            --hero-text: #2D2D2D;
+            --dusty-olive: #C4CCAA;
+            --taupe-rose: #CCC0BC;
+            --weathered-linen: #D8D0C0;
+            
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-mono);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 
+           PRELOADER (TERMINAL) 
+        */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--bg-dark);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            will-change: transform, clip-path;
+        }
+
+        .preloader-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--accent-silver);
+            z-index: 1999;
+            will-change: transform, clip-path;
+        }
+
+        .terminal-container {
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-mono);
+            margin-top: 2rem;
+        }
+
+        .terminal-line {
+            opacity: 0;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .svg-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .svg-progress {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle {
+            fill: none;
+            stroke-width: 2;
+            stroke: var(--accent-silver);
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440; /* Start empty */
+            stroke-linecap: round;
+        }
+
+        .progress-percentage {
+            position: absolute;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-mono);
+        }
+
+        /* 
+           HERO SECTION
+        */
+        .hero-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--hero-bg);
+            background-image: url('../../../assets/images/kinetic-hero.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            z-index: 100;
+            visibility: hidden;
+            opacity: 0;
+            will-change: transform, opacity, clip-path;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(245, 242, 232, 0.4); /* Vanilla Haze with opacity */
+            backdrop-filter: blur(5px);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 102;
+            text-align: center;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 600;
+            line-height: 0.9;
+            color: var(--hero-text);
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .hero-title span {
+            display: block;
+            transform: translateY(100%);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: var(--hero-text);
+            opacity: 0;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            margin-top: 1rem;
+        }
+
+        /* RESPONSIVE AUDIT */
+        @media (max-width: 768px) {
+            .terminal-container { padding: 0 1rem; }
+            .svg-container { width: 150px; height: 150px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- PRELOADER LAYERS -->
+    <div class="preloader-backdrop" id="backdrop"></div>
+    <div class="preloader" id="preloader">
+        
+        <div class="svg-container">
+            <svg class="svg-progress" viewBox="0 0 150 150">
+                <circle class="progress-circle" id="circle" cx="75" cy="75" r="70"></circle>
+            </svg>
+            <div class="progress-percentage" id="percentage">00</div>
+        </div>
+
+        <div class="terminal-container" id="terminal">
+            <div class="terminal-line">> BOOTING CORE SYSTEM...</div>
+            <div class="terminal-line">> INITIALIZING ASSETS...</div>
+            <div class="terminal-line">> LOADING LABORATORY MODULES...</div>
+            <div class="terminal-line">> SEQUENTIAL ORCHESTRATION READY.</div>
+            <div class="terminal-line">> STANDBY FOR INPUT.</div>
+        </div>
+
+    </div>
+
+    <!-- HERO SECTION -->
+    <main class="hero-section" id="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title" id="heroTitle">
+                <span>Kinetic</span>
+                <span>Experience</span>
+            </h1>
+            <p class="hero-subtitle" id="heroSubtitle">Digital Laboratory Experiment No. 042</p>
+        </div>
+    </main>
+
+    <script>
+        // --- CONFIG ---
+        const config = {
+            introDuration: 3,
+            wipeDuration: 1.8,
+            ease: "power4.inOut"
+        };
+
+        // Initialize Global Nav
+        initGlobalNav('../../../');
+
+        // --- UTILITIES ---
+        
+        // Manual Text Splitting (Alternative to SplitText)
+        function splitTextIntoLines(element) {
+            const lines = element.querySelectorAll('span');
+            // Element already has spans in this case, but for generic use:
+            // We'll just target the spans directly in our timeline.
+        }
+
+        // --- GSAP ORCHESTRATION ---
+
+        gsap.registerPlugin(CustomEase);
+        CustomEase.create("shutter", "M0,0 C0.64,0 0.35,1 1,1");
+
+        const introTL = gsap.timeline({
+            onComplete: () => {
+                // Short delay for breathability after 100%
+                gsap.delayedCall(0.5, () => exitTL.play());
+            }
+        });
+        const exitTL = gsap.timeline({ paused: true });
+
+        // introTL: Terminal Boot
+        introTL.to(".terminal-line", {
+            opacity: 1,
+            y: -5,
+            stagger: 0.2,
+            duration: 0.5,
+            ease: "power2.out"
+        }, 0.5);
+
+        // Progress Animation
+        const prog = { value: 0 };
+        introTL.to(prog, {
+            value: 100,
+            duration: config.introDuration,
+            ease: "power3.inOut",
+            onUpdate: () => {
+                const p = Math.floor(prog.value);
+                document.getElementById('percentage').innerText = p < 10 ? `0${p}` : p;
+                
+                // SVG Circle
+                // Dasharray is 440 (2 * pi * 70 = ~439.8)
+                const offset = 440 - (prog.value / 100) * 440;
+                gsap.set("#circle", { strokeDashoffset: offset });
+            }
+        }, 0.5);
+        // exitTL: The Wipe Reveal
+        
+        exitTL.to("#circle", {
+            strokeDashoffset: 440,
+            duration: 1,
+            ease: "power4.in"
+        }, 0);
+
+        exitTL.to("#preloader", {
+            scale: 0.9,
+            duration: 1.2,
+            ease: "power4.inOut"
+        }, 0.2);
+
+        // THE WIPE (Clip Path)
+        // From full screen to collapsed center point
+        exitTL.set("#hero", { visibility: "visible" });
+        
+        exitTL.to("#hero", {
+            opacity: 1,
+            duration: 0.8,
+            ease: "power2.out"
+        }, 0.5);
+
+        exitTL.to("#preloader", {
+            scale: 0,
+            opacity: 0,
+            duration: 1.5,
+            ease: "power4.inOut"
+        }, 0.2);
+
+        exitTL.to("#backdrop", {
+            scale: 0,
+            opacity: 0,
+            duration: 1.5,
+            ease: "power4.inOut"
+        }, 0.4);
+
+        exitTL.to("#preloader", {
+            clipPath: "polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)",
+            duration: config.wipeDuration,
+            ease: "shutter"
+        }, 0.6);
+
+        exitTL.to("#backdrop", {
+            clipPath: "polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)",
+            duration: config.wipeDuration,
+            ease: "shutter"
+        }, 0.8);
+
+        // Hero Content Reveal (The Pop)
+        exitTL.fromTo("#hero", { scale: 0.1 }, {
+            scale: 1,
+            duration: 2.5,
+            ease: "power4.out"
+        }, 0.6);
+
+        exitTL.to("#heroTitle span", {
+            y: 0,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power4.out"
+        }, 1.5);
+
+        exitTL.to("#heroSubtitle", {
+            opacity: 1,
+            y: -10,
+            duration: 1,
+            ease: "power2.out"
+        }, 2.0);
+
+        console.log("%c LABORATORY: Kinetic Terminal Reveal Active ", "background: #0A0A0A; color: #E0DDD8; font-weight: bold; padding: 4px;");
+    </script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlay Wipe Transition | UI Laboratory</title>
+
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@300;400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../../assets/global-nav.css">
+
+    <!-- GSAP Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="../../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           DESIGN SYSTEM: Vibrant Pastel Palette
+        */
+        :root {
+            --bg-base: #FFFFFF;
+            --text-dark: #000000;
+
+            /* Black & White Palette */
+            --transition-block: #000000;
+            --logo-stroke: #FFFFFF;
+
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Outfit', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-base);
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 
+           TRANSITION OVERLAY 
+        */
+        .transition-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 5000;
+            display: flex;
+            pointer-events: none;
+        }
+
+        .block {
+            flex: 1;
+            height: 100%;
+            background-color: var(--transition-block);
+            transform: scaleX(0);
+            will-change: transform;
+            border-right: 0.5px solid rgba(255, 255, 255, 0.05);
+            /* Subtle separation */
+        }
+
+        .logo-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5001;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .logo-svg {
+            width: 200px;
+            height: 200px;
+        }
+
+        .bat-path {
+            fill: none;
+            stroke: var(--logo-stroke);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            /* Length will be calculated by JS or hardcoded if simple */
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+        }
+
+        /* 
+           MAIN CONTENT
+        */
+        .content-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5vw;
+            text-align: center;
+        }
+
+        .content-layer.next {
+            display: none;
+            background-color: #E8F0F5;
+            /* Soft Haze */
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            opacity: 0.6;
+            max-width: 600px;
+        }
+
+        .trigger-btn {
+            margin-top: 3rem;
+            padding: 1rem 2.5rem;
+            background: var(--text-dark);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .trigger-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .trigger-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TRANSITION ELEMENTS -->
+    <div class="transition-container" id="transitionOverlay">
+        <!-- JS will inject 20 blocks here -->
+    </div>
+
+    <div class="logo-overlay" id="logoOverlay">
+        <!-- Minimalist Bat Logo SVG -->
+        <svg class="logo-svg" viewBox="0 0 100 100">
+            <path class="bat-path" id="batPath"
+                d="M50 30 C45 25 35 25 25 35 C15 45 10 40 5 45 C15 55 25 50 35 60 C40 65 45 70 50 70 C55 70 60 65 65 60 C75 50 85 55 95 45 C90 40 85 45 75 35 C65 25 55 25 50 30 Z M45 40 A2 2 0 1 0 45 44 A2 2 0 1 0 45 40 M55 40 A2 2 0 1 0 55 44 A2 2 0 1 0 55 40" />
+        </svg>
+    </div>
+
+    <!-- CONTENT LAYERS -->
+    <main class="content-layer current" id="pageA">
+        <h1>Nightfall <br> Laboratory</h1>
+        <p>A sequential orchestration of motion, blending vertical staggering with hand-drawn vector aesthetics.</p>
+        <button class="trigger-btn" onclick="startTransition()">Switch Realm</button>
+    </main>
+
+    <main class="content-layer next" id="pageB">
+        <h1>Gothic <br> Minimalism</h1>
+        <p>Refining the digital experience through precise timing and a signature bat-wing reveal sequence.</p>
+        <button class="trigger-btn" onclick="startTransition()">Return Home</button>
+    </main>
+
+    <script>
+        // --- CONFIG ---
+        const COLUMNS = 20;
+        const PASTELS = [
+            '#F5A8C0', '#C8A8F5', '#A8F5D8', '#A8D8F5', '#F5F0A8'
+        ];
+
+        // Initialize Global Nav
+        initGlobalNav('../../../');
+
+        // 1. Generate Blocks
+        const container = document.getElementById('transitionOverlay');
+        for (let i = 0; i < COLUMNS; i++) {
+            const block = document.createElement('div');
+            block.className = 'block';
+            container.appendChild(block);
+        }
+
+        // 2. Prepare SVG Dash
+        const batPath = document.getElementById('batPath');
+        const pathLength = batPath.getTotalLength();
+        gsap.set(batPath, { strokeDasharray: pathLength, strokeDashoffset: pathLength });
+
+        // 3. Transition Orchestration
+        let isTransitioning = false;
+        let isPageA = true;
+
+        function startTransition() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    isTransitioning = false;
+                }
+            });
+
+            // PHASE 1: COVER
+            tl.to(".block", {
+                scaleX: 1,
+                duration: 0.6,
+                stagger: 0.05,
+                transformOrigin: "left",
+                ease: "power2.inOut"
+            });
+
+            // PHASE 2: LOGO DRAWING
+            tl.to("#logoOverlay", { autoAlpha: 1, duration: 0.3 }, "-=0.4");
+            tl.to("#batPath", {
+                strokeDashoffset: 0,
+                duration: 0.8,
+                ease: "power2.inOut"
+            });
+
+            // PHASE 3: CONTENT SWAP (Mid-point)
+            tl.add(() => {
+                if (isPageA) {
+                    document.getElementById('pageA').style.display = 'none';
+                    document.getElementById('pageB').style.display = 'flex';
+                } else {
+                    document.getElementById('pageB').style.display = 'none';
+                    document.getElementById('pageA').style.display = 'flex';
+                }
+                isPageA = !isPageA;
+            }, "+=0.3");
+
+            // PHASE 4: LOGO FADE & REVEAL
+            tl.to("#logoOverlay", { autoAlpha: 0, duration: 0.4 }, "+=0.5");
+            tl.to("#batPath", { strokeDashoffset: pathLength, duration: 0.4 }, "<");
+
+            tl.to(".block", {
+                scaleX: 0,
+                duration: 0.6,
+                stagger: 0.05,
+                transformOrigin: "right",
+                ease: "power2.inOut"
+            }, "-=0.2");
+        }
+
+        console.log("%c NAVIGATION LAB: Overlay Wipe Transition Active ", "background: #F5A8C0; color: #2D2D2D; font-weight: bold; padding: 4px;");
+    </script>
+</body>
+
+</html>

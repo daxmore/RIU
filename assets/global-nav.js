@@ -51,6 +51,9 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/reveals/cinematic-zoom-reveal.html" class="dropdown-link">Zoom Reveal</a>
                     <a href="${relPath}experiments/reveals/landing-page-reveal.html" class="dropdown-link">Landing Reveal</a>
                     <a href="${relPath}experiments/reveals/diagonal-swoop-preloader.html" class="dropdown-link">Diagonal Swoop</a>
+                    <a href="${relPath}experiments/reveals/shutter-nav-reveal.html" class="dropdown-link">Shutter Reveal</a>
+                    <a href="${relPath}experiments/reveals/kinetic-terminal-reveal.html" class="dropdown-link">Kinetic Terminal</a>
+                    <a href="${relPath}experiments/reveals/overlay-wipe-transition.html" class="dropdown-link">Overlay Wipe</a>
                 </div>
             </div>
 
@@ -64,6 +67,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/scroll/pinned-hero-v2.html" class="dropdown-link">Pinned Hero V2</a>
                     <a href="${relPath}experiments/scroll/scroll-card-split-flip.html" class="dropdown-link">Split Flip</a>
                     <a href="${relPath}experiments/scroll/wave-scroll.html" class="dropdown-link">Wave Scroll</a>
+                    <a href="${relPath}experiments/scroll/parallax-zoom-reveal.html" class="dropdown-link">Parallax Zoom</a>
                     <a href="${relPath}experiments/scroll/scroll-zoom-parallax.html" class="dropdown-link">Cinematic Zoom</a>
                     <a href="${relPath}experiments/scroll/scroll-mask-parallax.html" class="dropdown-link">Mask Reveal</a>
                     <a href="${relPath}experiments/scroll/winding-path-scroll.html" class="dropdown-link">Winding Path</a>
@@ -78,6 +82,7 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/sliders/arc-slider.html" class="dropdown-link">Arc Slider</a>
                     <a href="${relPath}experiments/sliders/circular-text-gallery.html" class="dropdown-link">Circular Gallery</a>
                     <a href="${relPath}experiments/sliders/mood-layouts.html" class="dropdown-link">Mood Layouts</a>
+                    <a href="${relPath}experiments/sliders/cinematic-synchronized-slider.html" class="dropdown-link">Cinematic Sync Slider</a>
                 </div>
             </div>
         </div>
@@ -101,9 +106,9 @@ function initGlobalNav(relPath = "./") {
     // Expand/Collapse Timeline
     const tl = gsap.timeline({ paused: true });
     tl.to(menu, { width: "auto", maxWidth: "90vw", borderRadius: "30px", duration: 0.6, ease: "back.out(1.5)" })
-      .to(l1, { y: 3, rotate: 45, duration: 0.3 }, 0)
-      .to(l2, { y: -3, rotate: -45, duration: 0.3 }, 0)
-      .to(content, { autoAlpha: 1, duration: 0.3 }, 0.2);
+        .to(l1, { y: 3, rotate: 45, duration: 0.3 }, 0)
+        .to(l2, { y: -3, rotate: -45, duration: 0.3 }, 0)
+        .to(content, { autoAlpha: 1, duration: 0.3 }, 0.2);
 
     // Toggle Handler
     toggle.addEventListener('click', () => {

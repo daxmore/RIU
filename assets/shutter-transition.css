@@ -1,0 +1,55 @@
+/* 
+   SHUTTER TRANSITION STYLES
+   A cinematic grid-based overlay for seamless page transitions.
+*/
+
+.shutter-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+    pointer-events: none; /* Allows interaction when open */
+}
+
+.shutter-row {
+    flex: 1;
+    display: flex;
+    width: 100%;
+}
+
+.shutter-block {
+    flex: 1;
+    height: 100%;
+    transform: scaleY(0);
+    will-change: transform;
+}
+
+/* Row 1: Closes from Top */
+.shutter-row-1 .shutter-block {
+    transform-origin: top;
+    background-color: #C8D8CC; /* Muted Sage */
+}
+
+/* Row 2: Closes from Bottom */
+.shutter-row-2 .shutter-block {
+    transform-origin: bottom;
+    background-color: #D4C9E3; /* Pale Lavender */
+}
+
+/* Optional: Add a third row or mixed colors for extra depth */
+.shutter-row-1 .shutter-block:nth-child(even) {
+    background-color: #E8D5D0; /* Soft Blush */
+}
+
+.shutter-row-2 .shutter-block:nth-child(odd) {
+    background-color: #F0D9D1; /* Soft Peach */
+}
+
+/* State management */
+.shutter-container.is-active {
+    pointer-events: all;
+}
