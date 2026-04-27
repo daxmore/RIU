@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clip-Path Mask Menu | RIU Experiments</title>
+    <meta name="description" content="A premium full-screen menu reveal using GSAP and CSS clip-path masking for a smooth wiping effect.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Global Nav -->
+    <link rel="stylesheet" href="../../assets/global-nav.css">
+    <script src="../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           PALETTE: Muted Sage & Soft Blush
+           - Muted Sage: #C8D8CC
+           - Soft Blush: #E8D5D0
+           - Charcoal Blush: #888888
+           - Soft White: #F5F5F0
+        */
+        :root {
+            --bg-page: #F5F5F0;
+            --bg-menu: #E8D5D0;
+            --text-main: #333333;
+            --text-accent: #888888;
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Main Content --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5vw;
+        }
+
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            opacity: 0.5;
+            max-width: 500px;
+        }
+
+        /* --- Navigation Toggle --- */
+        .menu-btn {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            z-index: 2000;
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .menu-btn span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-main);
+            transition: 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        .menu-btn.is-active span:nth-child(1) { transform: translateY(3.5px) rotate(45deg); }
+        .menu-btn.is-active span:nth-child(2) { transform: translateY(-3.5px) rotate(-45deg); }
+
+        /* --- Menu Overlay --- */
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-menu);
+            z-index: 1500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Key: Clip Path Hidden State (Bottom to top wipe) */
+            clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+            pointer-events: none;
+            will-change: clip-path;
+        }
+
+        .menu-overlay.is-active {
+            pointer-events: auto;
+        }
+
+        .menu-content {
+            width: 100%;
+            height: 100%;
+            padding: 10vh 5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .menu-links {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .menu-link {
+            display: block;
+            font-family: var(--font-heading);
+            font-size: clamp(3.5rem, 12vw, 8rem);
+            font-weight: 900;
+            text-decoration: none;
+            color: var(--text-main);
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -0.05em;
+            transform: translateY(110%) rotate(5deg);
+            transition: color 0.3s;
+            transform-origin: left;
+        }
+
+        .menu-link:hover {
+            color: #fff;
+        }
+
+        /* --- Secondary Content --- */
+        .menu-footer {
+            margin-top: 4rem;
+            display: flex;
+            gap: 3rem;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .footer-col h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .footer-col p {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Background Graphics */
+        .bg-word {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            font-family: var(--font-heading);
+            font-size: 30vw;
+            font-weight: 900;
+            color: rgba(0,0,0,0.03);
+            line-height: 0.8;
+            pointer-events: none;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .menu-btn { top: 20px; right: 20px; width: 50px; height: 50px; }
+            .menu-footer { flex-direction: column; gap: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Hero -->
+    <main class="hero">
+        <h1>Masked<br>Reveal</h1>
+        <p>A high-end cinematic navigation transition utilizing CSS clip-path polygons and GSAP sequencing.</p>
+    </main>
+
+    <!-- Menu Toggle -->
+    <div class="menu-btn" id="menuToggle">
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="bg-word">MENU</div>
+        
+        <div class="menu-content">
+            <ul class="menu-links">
+                <li class="menu-item"><a href="#" class="menu-link">Studio</a></li>
+                <li class="menu-item"><a href="#" class="menu-link">Projects</a></li>
+                <li class="menu-item"><a href="#" class="menu-link">Manifesto</a></li>
+                <li class="menu-item"><a href="#" class="menu-link">Contact</a></li>
+            </ul>
+
+            <div class="menu-footer" id="menuFooter">
+                <div class="footer-col">
+                    <h4>Location</h4>
+                    <p>New York, NY<br>10013, US</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Social</h4>
+                    <p>Instagram<br>Twitter / X</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuFooter = document.getElementById('menuFooter');
+        const links = document.querySelectorAll('.menu-link');
+
+        let isOpen = false;
+
+        // --- GSAP TIMELINE ---
+        const tl = gsap.timeline({ paused: true });
+
+        tl.to(menuOverlay, {
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            duration: 1.2,
+            ease: "power4.inOut"
+        })
+        .to(links, {
+            y: 0,
+            rotation: 0,
+            duration: 1,
+            stagger: 0.1,
+            ease: "expo.out"
+        }, "-=0.6")
+        .to(menuFooter, {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "power2.out"
+        }, "-=0.8");
+
+        // --- INTERACTION ---
+        menuToggle.addEventListener('click', () => {
+            isOpen = !isOpen;
+            
+            menuToggle.classList.toggle('is-active');
+            menuOverlay.classList.toggle('is-active');
+
+            if (isOpen) {
+                tl.play();
+            } else {
+                tl.reverse();
+            }
+        });
+
+        // Close on link click
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                menuToggle.click();
+            });
+        });
+
+        // Global Nav Initialization
+        initGlobalNav('../../');
+    </script>
+</body>
+</html>

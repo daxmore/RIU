@@ -189,3 +189,16 @@ a.global-nav-link:first-child {
 }
 
 .index-back-link:hover { opacity: 1; }
+
+.new-badge {
+    font-size: 10px;
+    background: #F5A8C0; /* Candy Pink */
+    color: #2D2D2D;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 900;
+    text-transform: uppercase;
+    display: inline-block;
+    line-height: 1.2;
+    letter-spacing: 1px;
+}

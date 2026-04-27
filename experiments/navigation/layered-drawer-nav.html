@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layered Drawer Navigation | RIU Experiments</title>
+    <meta name="description"
+        content="A full-screen layered navigation menu with staggered panel reveals and clip-path transitions.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Global Nav -->
+    <link rel="stylesheet" href="../../assets/global-nav.css">
+    <script src="../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           PALETTE: Cool / Airy Pastels
+           - Powder Sky: #C4DCF0
+           - Pale Teal: #B0D8D4
+           - Cool Periwinkle: #C4C8E8
+           - Arctic Mist: #D4EAF0
+           - Muted Turquoise: #A8D8D4
+        */
+        :root {
+            --bg-color: #F5F5F0;
+            --layer-1: #C4DCF0;
+            --layer-2: #B0D8D4;
+            --layer-3: #C4C8E8;
+            --layer-4: #D4EAF0;
+            --text-dark: #333333;
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Page Content --- */
+        .page-content {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5vw;
+        }
+
+        .page-content h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 8vw, 6rem);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .page-content p {
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
+            opacity: 0.5;
+            max-width: 600px;
+        }
+
+        /* --- Hamburger Toggle --- */
+        .nav-toggle {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .nav-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .nav-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-dark);
+            transition: 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        /* Hamburger to X state */
+        .nav-toggle.is-active span:nth-child(1) {
+            transform: translateY(4px) rotate(45deg);
+        }
+
+        .nav-toggle.is-active span:nth-child(2) {
+            transform: translateY(-4px) rotate(-45deg);
+        }
+
+        /* --- Navigation Overlay --- */
+        .nav-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1500;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .nav-overlay.is-active {
+            pointer-events: auto;
+        }
+
+        /* Background Layers */
+        .nav-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleY(0);
+            transform-origin: top;
+            will-change: transform;
+        }
+
+        .panel-1 {
+            background: var(--layer-1);
+            z-index: 1;
+        }
+
+        .panel-2 {
+            background: var(--layer-2);
+            z-index: 2;
+        }
+
+        .panel-3 {
+            background: var(--layer-3);
+            z-index: 3;
+        }
+
+        .panel-4 {
+            background: var(--layer-4);
+            z-index: 4;
+        }
+
+        /* Navigation Content */
+        .nav-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+            /* Hidden state */
+        }
+
+        .nav-links {
+            list-style: none;
+            text-align: center;
+        }
+
+        .nav-link-item {
+            overflow: hidden;
+            /* For text masking */
+            margin: 1.5rem 0;
+        }
+
+        .nav-link {
+            display: block;
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 900;
+            text-decoration: none;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            transform: translateY(100%);
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #222;
+        }
+
+        .nav-footer {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 5vw;
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.4;
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                top: 20px;
+                right: 20px;
+            }
+
+            .nav-link {
+                margin: 1rem 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="page-content">
+        <h1>Layered<br>Drawer</h1>
+        <p>A sophisticated full-screen navigation study using staggered transforms and clip-path reveals.</p>
+    </main>
+
+    <!-- Navigation Toggle -->
+    <div class="nav-toggle" id="toggle">
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation Overlay -->
+    <div class="nav-overlay" id="overlay">
+        <!-- Background Panels -->
+        <div class="nav-panel panel-1"></div>
+        <div class="nav-panel panel-2"></div>
+        <div class="nav-panel panel-3"></div>
+        <div class="nav-panel panel-4"></div>
+
+        <!-- Navigation Content -->
+        <div class="nav-content" id="navContent">
+            <ul class="nav-links">
+                <li class="nav-link-item"><a href="#" class="nav-link">Home</a></li>
+                <li class="nav-link-item"><a href="#" class="nav-link">Work</a></li>
+                <li class="nav-link-item"><a href="#" class="nav-link">Archive</a></li>
+                <li class="nav-link-item"><a href="#" class="nav-link">Journal</a></li>
+                <li class="nav-link-item"><a href="#" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="nav-footer" id="navFooter">
+                <span>RIU / NAV SYSTEM</span>
+                <span>VOL. 02</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const toggle = document.getElementById('toggle');
+        const overlay = document.getElementById('overlay');
+        const navContent = document.getElementById('navContent');
+        const navFooter = document.getElementById('navFooter');
+        const panels = document.querySelectorAll('.nav-panel');
+        const links = document.querySelectorAll('.nav-link');
+
+        let isOpen = false;
+
+        // --- MASTER TIMELINE ---
+        const menuTimeline = gsap.timeline({ paused: true });
+
+        menuTimeline
+            // 1. Panels Scale Down (Open)
+            .to(panels, {
+                scaleY: 1,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "expo.inOut"
+            })
+            // 2. Reveal Content Area
+            .to(navContent, {
+                clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+                duration: 0.6,
+                ease: "power3.inOut"
+            }, "-=0.4")
+            // 3. Stagger Text Reveal
+            .to(links, {
+                y: 0,
+                duration: 0.8,
+                stagger: 0.05,
+                ease: "power4.out"
+            }, "-=0.3")
+            // 4. Reveal Footer
+            .to(navFooter, {
+                y: 0,
+                opacity: 0.4,
+                duration: 0.6,
+                ease: "power2.out"
+            }, "-=0.6");
+
+        // --- TOGGLE INTERACTION ---
+        toggle.addEventListener('click', () => {
+            isOpen = !isOpen;
+
+            toggle.classList.toggle('is-active');
+            overlay.classList.toggle('is-active');
+
+            if (isOpen) {
+                menuTimeline.play();
+            } else {
+                // Reverse quickly on close
+                menuTimeline.reverse();
+            }
+        });
+
+        // Close on link click (optional but good for UX)
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggle.click();
+            });
+        });
+
+        // Global Nav Initialization
+        initGlobalNav('../../');
+    </script>
+</body>
+
+</html>

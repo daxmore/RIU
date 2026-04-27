@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Card Stack Flip | RIU Experiments</title>
+    <meta name="description" content="A scroll-driven 3D card stack animation using GSAP and ScrollTrigger.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Global Nav -->
+    <link rel="stylesheet" href="../../assets/global-nav.css">
+    <script src="../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           PALETTE: Warm / Earthy Pastels
+           - Dusty Rose: #E8C4BC
+           - Muted Clay: #C8B0A8
+           - Warm Butter: #F7EAB5
+           - Soft White: #F5F5F0
+           - Charcoal Blush: #888888
+        */
+        :root {
+            --bg-color: #F5F5F0;
+            --card-front: #E8C4BC;
+            --card-back: #C8B0A8;
+            --card-accent: #F7EAB5;
+            --text-dark: #333333;
+            --text-muted: #888888;
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+        }
+
+        /* --- Smooth Scroll Height --- */
+        .scroll-spacer {
+            height: 400vh; /* Total scroll depth */
+        }
+
+        /* --- Main Pinned Section --- */
+        #visual-viewport {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 2000px; /* Crucial for 3D */
+            z-index: 10;
+        }
+
+        /* --- Hero Header --- */
+        .hero-header {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+            width: 100%;
+            padding: 0 5vw;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 12vw, 10rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -0.05em;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 300;
+            margin-top: 1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        /* --- Card Stack Container --- */
+        .card-stack {
+            position: relative;
+            width: clamp(260px, 32vw, 450px); /* Smaller size as requested */
+            aspect-ratio: 3.2 / 4.2;
+            transform-style: preserve-3d;
+            transform: translateY(120vh) rotateX(15deg);
+            z-index: 20;
+        }
+
+        .card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 28px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.18);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2.5rem;
+            backface-visibility: hidden;
+            transform-origin: center center;
+            will-change: transform;
+            border: 1px solid rgba(255,255,255,0.6); /* More opaque border */
+            opacity: 1 !important; /* Force full opacity */
+        }
+
+        /* 
+           AGGRESSIVE Z-Offsetting to prevent any 3D intersection/bleed
+        */
+        #card-cover { background-color: #E8C4BC; z-index: 500; transform: translateZ(200px); }
+        #card-1 { background-color: #C8D8CC; z-index: 400; transform: translateZ(150px) rotateY(180deg); }
+        #card-2 { background-color: #D4C9E3; z-index: 300; transform: translateZ(100px) rotateY(180deg); }
+        #card-3 { background-color: #F0D9D1; z-index: 200; transform: translateZ(50px) rotateY(180deg); }
+        #card-4 { background-color: #B8D4E8; z-index: 100; transform: translateZ(0px) rotateY(180deg); }
+
+        .card-number {
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: rgba(0,0,0,0.4);
+            background: rgba(255,255,255,0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .card-content h3 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 900;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -0.03em;
+        }
+
+        .card-content p {
+            font-size: clamp(0.85rem, 1vw, 1rem);
+            line-height: 1.5;
+            color: rgba(0,0,0,0.5);
+            max-width: 90%;
+            font-weight: 500;
+        }
+
+        .card-footer {
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.3;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* --- Decorative Background Elements --- */
+        .bg-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, rgba(232, 196, 188, 0.15) 0%, transparent 70%);
+            filter: blur(80px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* --- Scroll Indicator --- */
+        .scroll-hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.3;
+            z-index: 30;
+        }
+
+        .hint-bar {
+            width: 1px;
+            height: 50px;
+            background: rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hint-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--text-dark);
+            transform: translateY(-100%);
+            animation: scrollLine 2s infinite ease-in-out;
+        }
+
+        @keyframes scrollLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .card-stack {
+                width: 75vw;
+                aspect-ratio: 3/4.2;
+            }
+            .card {
+                padding: 1.8rem;
+            }
+            .card-content h3 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow" id="glow"></div>
+    <div class="scroll-spacer"></div>
+
+    <div id="visual-viewport">
+        <!-- Hero Header -->
+        <div class="hero-header" id="hero">
+            <h1 class="hero-title">Archive<br>v.01</h1>
+            <p class="hero-subtitle">The Kinetic Series</p>
+        </div>
+
+        <!-- Card Stack -->
+        <div class="card-stack" id="stack">
+            <!-- The "Cover" Card -->
+            <div class="card" id="card-cover">
+                <div class="card-number">00</div>
+                <div class="card-content">
+                    <h3>The<br>Origin</h3>
+                    <p>A focused study in tactile motion and fluid digital geometry.</p>
+                </div>
+                <div class="card-footer">RIU / VOLUME 01</div>
+            </div>
+
+            <!-- Back Cards -->
+            <div class="card" id="card-1">
+                <div class="card-number">01</div>
+                <div class="card-content">
+                    <h3>Pure<br>Form</h3>
+                    <p>Simplicity is the ultimate sophistication in motion design.</p>
+                </div>
+                <div class="card-footer">Concept Design</div>
+            </div>
+
+            <div class="card" id="card-2">
+                <div class="card-number">02</div>
+                <div class="card-content">
+                    <h3>Spatial<br>Flow</h3>
+                    <p>Creating interfaces that live and breathe in a three-dimensional space.</p>
+                </div>
+                <div class="card-footer">Motion Systems</div>
+            </div>
+
+            <div class="card" id="card-3">
+                <div class="card-number">03</div>
+                <div class="card-content">
+                    <h3>Tactile<br>Core</h3>
+                    <p>Physics-based interactions that feel heavy and intentional.</p>
+                </div>
+                <div class="card-footer">Interactive Labs</div>
+            </div>
+
+            <div class="card" id="card-4">
+                <div class="card-number">04</div>
+                <div class="card-content">
+                    <h3>Dynamic<br>State</h3>
+                    <p>Continuous evolution driven by user input and geometric logic.</p>
+                </div>
+                <div class="card-footer">Digital Craft</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-hint">
+        <span>Scroll</span>
+        <div class="hint-bar"></div>
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const hero = document.getElementById('hero');
+        const stack = document.getElementById('stack');
+        const glow = document.getElementById('glow');
+        const cardCover = document.getElementById('card-cover');
+        const backCards = [
+            document.getElementById('card-1'),
+            document.getElementById('card-2'),
+            document.getElementById('card-3'),
+            document.getElementById('card-4')
+        ];
+
+        // Master Timeline
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".scroll-spacer",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 2.2,
+            }
+        });
+
+        // 1. ENTRANCE
+        tl.to(hero, {
+            y: -100,
+            opacity: 0,
+            duration: 2,
+            ease: "power2.inOut"
+        }, 0)
+        .to(stack, {
+            y: 0,
+            rotateX: 0,
+            duration: 2.5,
+            ease: "expo.out"
+        }, 0);
+
+        // 2. THE FLIP (Reverse Z-management so Card 1 is on top)
+        tl.to(cardCover, {
+            rotationY: -180,
+            z: -500, // Move way back during flip
+            x: -120,
+            duration: 3,
+            ease: "back.inOut(1.2)"
+        }, 1.5)
+        .to(backCards, {
+            rotationY: 0,
+            x: 0,
+            y: 0,
+            // (backCards.length - i) ensures Card 1 has highest Z (top) and Card 4 has lowest Z (bottom)
+            z: (i) => (backCards.length - i) * 80, 
+            duration: 3,
+            stagger: 0.1,
+            ease: "back.inOut(1.2)"
+        }, 1.5);
+
+        // 3. THE DISMISSAL (One by one from the top)
+        backCards.forEach((card, i) => {
+            const delay = 6 + (i * 3);
+            
+            // Move background glow
+            const colors = ['#C8D8CC', '#D4C9E3', '#F0D9D1', '#B8D4E8'];
+            tl.to(glow, {
+                background: `radial-gradient(circle, ${colors[i]}22 0%, transparent 70%)`,
+                duration: 2
+            }, delay - 0.5);
+
+            tl.to(card, {
+                y: "-150vh",
+                x: i % 2 === 0 ? "-20vw" : "20vw",
+                rotationZ: i % 2 === 0 ? -15 : 15,
+                rotationX: 20,
+                scale: 0.9,
+                duration: 4,
+                ease: "power2.in"
+            }, delay);
+        });
+
+        // Final exit
+        tl.to(stack, {
+            opacity: 0,
+            duration: 2
+        }, ">");
+
+    </script>
+    <script>
+        initGlobalNav('../../');
+    </script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draggable Video Mask | RIU Experiments</title>
+    <meta name="description" content="A high-end interaction using draggable canvas masks to reveal a hidden background video source.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+
+    <!-- Global Nav -->
+    <link rel="stylesheet" href="../../assets/global-nav.css">
+    <script src="../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           PALETTE: Technical / Cyber (Exactly as image)
+           - UI Bar: rgba(50, 40, 30, 0.6)
+           - Accent: #ffffff (mostly white/grey for lines)
+           - Accent (Mint): #A8F5D8 (retaining for some subtle hover highlights)
+        */
+        :root {
+            --bg-color: #080808;
+            --accent-white: rgba(255, 255, 255, 0.8);
+            --ui-bg: rgba(40, 32, 25, 0.7);
+            --font-mono: 'Space Mono', monospace;
+            --grid-color: rgba(255, 255, 255, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #fff;
+            font-family: var(--font-mono);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* --- Technical Background Details --- */
+        .technical-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .tech-text-top {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.25);
+            text-align: center;
+            line-height: 1.4;
+            letter-spacing: 1px;
+            white-space: pre;
+        }
+
+        .corner-marker {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .top-left { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+        .top-right { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
+        .bottom-left { bottom: 20px; left: 20px; border-right: 0; border-top: 0; }
+        .bottom-right { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
+
+        /* Random markers from image */
+        .marker-x {
+            position: absolute;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Draggable Masks --- */
+        .mask-container {
+            position: absolute;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: grab;
+            z-index: 10;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* Outline only windows */
+        .mask-container.outline-only {
+            background: transparent;
+            pointer-events: none; /* In image they seem static backgrounds */
+        }
+
+        .mask-container:active {
+            cursor: grabbing;
+        }
+
+        .mask-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .mask-label {
+            position: absolute;
+            top: -20px;
+            left: 0;
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 850px) {
+            .mask-container { width: 160px; height: 120px; }
+        }
+    </style>
+    <!-- Monospace Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="technical-overlay">
+        <div class="corner-marker top-left"></div>
+        <div class="corner-marker top-right"></div>
+        <div class="corner-marker bottom-left"></div>
+        <div class="corner-marker bottom-right"></div>
+        
+        <div class="tech-text-top">
+VIDEO ID / AAN_541GAOZBZFZGA / POK5_XFRK_YVZC VIEWPORT
+FRAMES 1920X1080*1.28 / 0 DROPPED OF 86454 CURRENT
+OPTIMAL RES 1920X1080@30 / 3840X2160@25 VOLUME
+NORMALIZED 100% / 100% [CONTENT LOUDNESS -24.8DB] CODECS
+AVC1.80109615137 / OPUS (251)
+        </div>
+
+        <!-- Scattered crosses and markers from image -->
+        <div class="marker-x" style="top: 10%; left: 20%;">+</div>
+        <div class="marker-x" style="top: 10%; right: 15%;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18"/><line x1="3" y1="3" x2="21" y2="21"/><line x1="21" y1="3" x2="3" y2="21"/></svg></div>
+        <div class="marker-x" style="bottom: 10%; left: 10%;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+    </div>
+
+    <!-- Hidden Video Source -->
+    <video id="videoSource" src="../../assets/videos/far-cry-3.mp4" muted loop playsinline crossorigin="anonymous" style="display: none;"></video>
+
+    <!-- Draggable Apertures (Masks) -->
+    <div class="mask-container" style="top: 10%; left: 5%; width: 750px; height: 480px;">
+        <span class="mask-label">X: 911PX Y: 0984PX</span>
+        <canvas class="mask-canvas"></canvas>
+    </div>
+
+    <div class="mask-container" style="top: 35%; right: 5%; width: 680px; height: 420px;">
+        <span class="mask-label">X: 8215PX Y: 6283PX</span>
+        <canvas class="mask-canvas"></canvas>
+    </div>
+
+    <div class="mask-container" style="top: 65%; left: 15%; width: 220px; height: 140px;">
+        <span class="mask-label">X: 9123PX Y: 9381PX</span>
+        <canvas class="mask-canvas"></canvas>
+    </div>
+
+    <div class="mask-container" style="top: 15%; left: 45%; width: 300px; height: 180px;">
+        <span class="mask-label">X: 9723PX Y: 8289PX</span>
+        <canvas class="mask-canvas"></canvas>
+    </div>
+
+    <div class="mask-container" style="bottom: 5%; right: 15%; width: 320px; height: 200px;">
+        <span class="mask-label">X: 7215PX Y: 4283PX</span>
+        <canvas class="mask-canvas"></canvas>
+    </div>
+
+    <div class="mask-container" style="bottom: 10%; left: 10%; width: 280px; height: 160px;">
+        <span class="mask-label">X: 5215PX Y: 2283PX</span>
+        <canvas class="mask-canvas"></canvas>
+    </div>
+
+    <!-- Static Outline boxes to match image texture -->
+    <div class="mask-container outline-only" style="top: 40%; left: 40%; width: 100px; height: 100px;"></div>
+    <div class="mask-container outline-only" style="bottom: 30%; right: 30%; width: 150px; height: 150px;"></div>
+
+    <script>
+        // --- VIDEO SOURCE ---
+        const video = document.getElementById('videoSource');
+        
+        // Start playing the video
+        video.play().catch(e => console.log("Auto-play blocked or error:", e));
+
+        // --- MASK LOGIC ---
+        const containers = document.querySelectorAll('.mask-container:not(.outline-only)');
+        const masks = Array.from(containers).map(container => {
+            const canvas = container.querySelector('.mask-canvas');
+            const label = container.querySelector('.mask-label');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas resolution
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+
+            return { container, canvas, ctx, label };
+        });
+
+        function updateMasks() {
+            // We need to calculate the scaling because the video might not match screen size
+            // For this effect, we treat the video as covering the full screen
+            const vW = video.videoWidth;
+            const vH = video.videoHeight;
+            const sW = window.innerWidth;
+            const sH = window.innerHeight;
+
+            masks.forEach(mask => {
+                const rect = mask.container.getBoundingClientRect();
+                
+                // Update Label Coordinates
+                if(mask.label) {
+                    mask.label.innerText = `X: ${Math.round(rect.left)}PX Y: ${Math.round(rect.top)}PX`;
+                }
+
+                // Map the screen coordinates to video coordinates
+                const sx = (rect.left / sW) * vW;
+                const sy = (rect.top / sH) * vH;
+                const sw = (rect.width / sW) * vW;
+                const sh = (rect.height / sH) * vH;
+
+                if (video.readyState >= 2) { // HAVE_CURRENT_DATA or better
+                    mask.ctx.drawImage(
+                        video, 
+                        sx, sy, sw, sh, // Source coordinates in video
+                        0, 0, rect.width, rect.height // Destination coordinates in canvas
+                    );
+                }
+            });
+            requestAnimationFrame(updateMasks);
+        }
+
+        // --- DRAGGABLE INTERACTION ---
+        Draggable.create(".mask-container:not(.outline-only)", {
+            bounds: "body",
+            inertia: true,
+            onDrag: function() {
+                // Z-index handling
+                gsap.set(this.target, { zIndex: 100 });
+            },
+            onPress: function() {
+                // Bring to front
+                gsap.set(".mask-container", { zIndex: 10 });
+                gsap.set(this.target, { zIndex: 100 });
+                gsap.to(this.target, { scale: 1.05, duration: 0.3, ease: "power2.out" });
+            },
+            onRelease: function() {
+                gsap.to(this.target, { scale: 1, duration: 0.3, ease: "power2.out" });
+            }
+        });
+
+        // Resize Handling
+        window.addEventListener('resize', () => {
+            masks.forEach(mask => {
+                mask.canvas.width = mask.container.offsetWidth;
+                mask.canvas.height = mask.container.offsetHeight;
+            });
+        });
+
+        // Start Loop
+        updateMasks();
+
+        // Global Nav
+        initGlobalNav('../../');
+    </script>
+</body>
+</html>

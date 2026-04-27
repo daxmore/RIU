@@ -18,6 +18,7 @@ function initGlobalNav(relPath = "./") {
             <div class="global-menu-item">
                 <span class="global-nav-link has-dropdown">Interactions</span>
                 <div class="dropdown">
+                    <a href="${relPath}experiments/interactions/draggable-video-mask.html" class="dropdown-link">Draggable Mask <span class="new-badge">NEW</span></a>
                     <a href="${relPath}experiments/interactions/video-hover-collage.html" class="dropdown-link">Video Collage</a>
                     <a href="${relPath}experiments/interactions/cursor-media-reveal-premium.html" class="dropdown-link">Premium Cursor</a>
                     <a href="${relPath}experiments/interactions/rogue-hover-reveal.html" class="dropdown-link">Rogue Hover</a>
@@ -35,6 +36,8 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/navigation/radial-aperture-reveal.html" class="dropdown-link">Aperture Reveal</a>
                     <a href="${relPath}experiments/navigation/push-down-reveal.html" class="dropdown-link">Push-Down</a>
                     <a href="${relPath}experiments/navigation/curved-wipe-menu.html" class="dropdown-link">Curved Wipe</a>
+                    <a href="${relPath}experiments/navigation/layered-drawer-nav.html" class="dropdown-link">Layered Drawer <span class="new-badge">NEW</span></a>
+                    <a href="${relPath}experiments/navigation/clip-path-reveal-menu.html" class="dropdown-link">Clip-Path Reveal <span class="new-badge">NEW</span></a>
                 </div>
             </div>
 
@@ -43,8 +46,8 @@ function initGlobalNav(relPath = "./") {
                 <div class="dropdown">
                     <a href="${relPath}experiments/reveals/ascii-image-reveal.html" class="dropdown-link">ASCII Reveal</a>
                     <a href="${relPath}experiments/reveals/cinematic-preloader-reveal.html" class="dropdown-link">Preloader Reveal</a>
-                    <a href="${relPath}experiments/reveals/cinematic-interactive-reveal.html" class="dropdown-link">Interactive Preloader</a>
-                    <a href="${relPath}experiments/reveals/staggered-character-reveal.html" class="dropdown-link">Character Reveal</a>
+                    <a href="${relPath}experiments/reveals/cinematic-interactive-reveal.html" class="dropdown-link">Interactive Preloader <span class="new-badge">NEW</span></a>
+                    <a href="${relPath}experiments/reveals/staggered-character-reveal.html" class="dropdown-link">Character Reveal <span class="new-badge">NEW</span></a>
                     <a href="${relPath}experiments/reveals/fluid-mask-reveal.html" class="dropdown-link">Fluid Mask</a>
                     <a href="${relPath}experiments/reveals/snake-transition.html" class="dropdown-link">Snake Transition</a>
                     <a href="${relPath}experiments/reveals/staggered-grid-reveal.html" class="dropdown-link">Grid Reveal</a>
@@ -62,6 +65,7 @@ function initGlobalNav(relPath = "./") {
             <div class="global-menu-item">
                 <span class="global-nav-link has-dropdown">Scroll</span>
                 <div class="dropdown">
+                    <a href="${relPath}experiments/scroll/scroll-3d-card-stack.html" class="dropdown-link">3D Card Stack <span class="new-badge">NEW</span></a>
                     <a href="${relPath}experiments/scroll/sticky-scroll-cards.html" class="dropdown-link">Sticky Cards</a>
                     <a href="${relPath}experiments/scroll/sticky-stacking-cards.html" class="dropdown-link">Stacking Cards</a>
                     <a href="${relPath}experiments/scroll/cinematic-scroll-slider-v3.html" class="dropdown-link">Scroll Slider V3</a>
@@ -79,6 +83,7 @@ function initGlobalNav(relPath = "./") {
             <div class="global-menu-item">
                 <span class="global-nav-link has-dropdown">Sliders</span>
                 <div class="dropdown">
+                    <a href="${relPath}experiments/sliders/scroll-3d-stack-slider.html" class="dropdown-link">3D Stack Slider <span class="new-badge">NEW</span></a>
                     <a href="${relPath}experiments/sliders/awwwards-cinematic-slider.html" class="dropdown-link">Cinematic V1</a>
                     <a href="${relPath}experiments/sliders/awwwards-cinematic-slider-v2.html" class="dropdown-link">Cinematic V2</a>
                     <a href="${relPath}experiments/sliders/arc-slider.html" class="dropdown-link">Arc Slider</a>

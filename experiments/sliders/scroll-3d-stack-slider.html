@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Perspective Stack Slider | RIU Experiments</title>
+    <meta name="description" content="A high-end scroll-powered 3D stacking slider with perspective depth and staggered text reveals.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Global Nav -->
+    <link rel="stylesheet" href="../../assets/global-nav.css">
+    <script src="../../assets/global-nav.js"></script>
+
+    <style>
+        /* 
+           PALETTE: Original Core Palette
+           - Soft Blush: #E8D5D0
+           - Muted Sage: #C8D8CC
+           - Pale Lavender: #D4C9E3
+           - Soft Peach: #F0D9D1
+           - Muted Blue: #B8D4E8
+        */
+        :root {
+            --bg-color: #F5F5F0;
+            --text-dark: #333333;
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --perspective: 1000px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Slider Container --- */
+        .slider-viewport {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: var(--perspective);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* --- Stack Container --- */
+        .slider-stack {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Slide Item --- */
+        .slide {
+            position: absolute;
+            width: clamp(300px, 60vw, 800px);
+            height: clamp(400px, 70vh, 600px);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 3rem;
+            will-change: transform, opacity;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .slide-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.8;
+            /* In a real project, we'd use images here */
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .slide-number {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        .slide-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+        }
+
+        /* --- UI Controls --- */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mouse-icon {
+            width: 20px;
+            height: 30px;
+            border: 2px solid var(--text-dark);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .mouse-icon::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            width: 2px;
+            height: 6px;
+            background: var(--text-dark);
+            transform: translateX(-50%);
+            animation: scroll-anim 1.5s infinite;
+        }
+
+        @keyframes scroll-anim {
+            0% { transform: translate(-50%, 0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translate(-50%, 10px); opacity: 0; }
+        }
+
+        /* --- Header --- */
+        .header {
+            position: fixed;
+            top: 40px;
+            left: 5vw;
+            z-index: 100;
+        }
+
+        .header h2 {
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .slide { width: 90vw; padding: 2rem; }
+            .header { top: 20px; left: 20px; }
+            .scroll-indicator { bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h2>3D Stack Slider</h2>
+    </header>
+
+    <div class="slider-viewport">
+        <div class="slider-stack" id="sliderStack">
+            <!-- Slides will be generated by JS -->
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <div class="mouse-icon"></div>
+        <span>Scroll to Explore</span>
+    </div>
+
+    <script>
+        // --- CONFIG & DATA ---
+        const slidesData = [
+            { title: "Ethereal", number: "01", color: "#E8D5D0" },
+            { title: "Organic", number: "02", color: "#C8D8CC" },
+            { title: "Spectral", number: "03", color: "#D4C9E3" },
+            { title: "Vibrant", number: "04", color: "#F0D9D1" },
+            { title: "Fluid", number: "05", color: "#B8D4E8" },
+            { title: "Zenith", number: "06", color: "#C4DCF0" },
+            { title: "Nature", number: "07", color: "#B0D8D4" }
+        ];
+
+        const stack = document.getElementById('sliderStack');
+        const MAX_Z = 0;
+        const Z_GAP = -150; // Each slide pushes back by 150px
+        const Y_GAP = -40;  // Each slide lifts up by 40px
+        
+        let currentIndex = 0;
+        let isAnimating = false;
+        let slides = [];
+
+        // --- GENERATE SLIDES ---
+        function initSlides() {
+            slidesData.forEach((data, i) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                slide.style.backgroundColor = data.color;
+                
+                // Initial 3D transform based on index
+                // We start them all at their stack positions
+                const zPos = i * Z_GAP;
+                const yPos = i * Y_GAP;
+                const opacity = i === 0 ? 1 : 1 - (i * 0.2);
+
+                gsap.set(slide, {
+                    z: zPos,
+                    y: yPos,
+                    opacity: opacity,
+                    zIndex: slidesData.length - i
+                });
+
+                slide.innerHTML = `
+                    <div class="slide-content">
+                        <div class="slide-number">${data.number}</div>
+                        <div class="slide-title">${data.title}</div>
+                    </div>
+                `;
+
+                stack.appendChild(slide);
+                slides.push(slide);
+            });
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function moveStack(direction) {
+            if (isAnimating) return;
+            
+            // Limit range
+            if (direction > 0 && currentIndex >= slides.length - 1) return;
+            if (direction < 0 && currentIndex <= 0) return;
+
+            isAnimating = true;
+            currentIndex += direction;
+
+            const tl = gsap.timeline({
+                onComplete: () => { isAnimating = false; }
+            });
+
+            slides.forEach((slide, i) => {
+                const relativeIndex = i - currentIndex;
+                
+                // If relativeIndex < 0, it means it's been passed (is in front and moving out)
+                // If relativeIndex === 0, it's the current front slide
+                // If relativeIndex > 0, it's in the stack behind
+                
+                if (relativeIndex < 0) {
+                    // Move OUT (Forward and Fade)
+                    tl.to(slide, {
+                        z: 400,
+                        y: 100,
+                        opacity: 0,
+                        duration: 1.2,
+                        ease: "power2.inOut"
+                    }, 0);
+                } else {
+                    // Move WITHIN stack
+                    const zPos = relativeIndex * Z_GAP;
+                    const yPos = relativeIndex * Y_GAP;
+                    const opacity = 1 - (relativeIndex * 0.25);
+
+                    tl.to(slide, {
+                        z: zPos,
+                        y: yPos,
+                        opacity: Math.max(0, opacity),
+                        duration: 1.2,
+                        ease: "power2.inOut"
+                    }, 0);
+                }
+            });
+
+            // Subtle text stagger for the incoming slide
+            const currentSlide = slides[currentIndex];
+            if (currentSlide) {
+                tl.fromTo(currentSlide.querySelector('.slide-title'), 
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" }, 
+                    "-=0.8"
+                );
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        
+        // Wheel Scroll
+        window.addEventListener('wheel', (e) => {
+            if (Math.abs(e.deltaY) > 10) {
+                moveStack(e.deltaY > 0 ? 1 : -1);
+            }
+        });
+
+        // Touch Interaction
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        window.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            
+            if (Math.abs(diff) > 50) {
+                moveStack(diff > 0 ? 1 : -1);
+            }
+        });
+
+        // Initialize
+        initSlides();
+        initGlobalNav('../../');
+    </script>
+</body>
+</html>
