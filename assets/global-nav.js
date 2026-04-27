@@ -23,7 +23,6 @@ function initGlobalNav(relPath = "./") {
                     <a href="${relPath}experiments/interactions/rogue-hover-reveal.html" class="dropdown-link">Rogue Hover</a>
                     <a href="${relPath}experiments/interactions/physics-service-reveal.html" class="dropdown-link">Physics Service</a>
                     <a href="${relPath}experiments/interactions/terminal-scramble-grid.html" class="dropdown-link">Terminal Scramble</a>
-                    <a href="${relPath}experiments/interactions/magnetic-grid-highlight.html" class="dropdown-link">Magnetic Highlight</a>
                     <a href="${relPath}experiments/interactions/infinite-3d-tunnel.html" class="dropdown-link">3D Tunnel</a>
                 </div>
             </div>
@@ -42,6 +41,7 @@ function initGlobalNav(relPath = "./") {
             <div class="global-menu-item">
                 <span class="global-nav-link has-dropdown">Reveals</span>
                 <div class="dropdown">
+                    <a href="${relPath}experiments/reveals/ascii-image-reveal.html" class="dropdown-link">ASCII Reveal</a>
                     <a href="${relPath}experiments/reveals/cinematic-preloader-reveal.html" class="dropdown-link">Preloader Reveal</a>
                     <a href="${relPath}experiments/reveals/fluid-mask-reveal.html" class="dropdown-link">Fluid Mask</a>
                     <a href="${relPath}experiments/reveals/snake-transition.html" class="dropdown-link">Snake Transition</a>
