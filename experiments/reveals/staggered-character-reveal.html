@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staggered Character Reveal | RIU Experiments</title>
+    <meta name="description" content="A high-end typography reveal effect that splits text into characters and animates them with GSAP.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <style>
+        /* 
+           PALETTE: Muted / Earthy + Cool
+           - Muted Blue: #B8D4E8
+           - Soft Blush: #E8D5D0
+           - Muted Sage: #C8D8CC
+           - Soft White: #F5F5F0
+           - Charcoal Blush: #888888
+        */
+        :root {
+            --bg-color: #F5F5F0;
+            --text-color: #333333;
+            --accent-blue: #B8D4E8;
+            --accent-pink: #E8D5D0;
+            --accent-sage: #C8D8CC;
+            --muted-text: #888888;
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5vw;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* --- Reveal Typography Styles --- */
+        .reveal-heading {
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        .reveal-subtext {
+            font-family: var(--font-body);
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            font-weight: 300;
+            color: var(--muted-text);
+            max-width: 600px;
+            margin: 0 auto;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* Essential for Character Animation */
+        .char {
+            display: inline-block;
+            will-change: transform, opacity;
+        }
+
+        .line {
+            display: block;
+            overflow: hidden; /* Masking effect */
+            padding-bottom: 0.1em;
+        }
+
+        .word {
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        /* Control Button */
+        .controls {
+            margin-top: 4rem;
+        }
+
+        .btn-replay {
+            padding: 1rem 2.5rem;
+            background: var(--accent-sage);
+            border: none;
+            border-radius: 50px;
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .btn-replay:hover {
+                background: var(--accent-blue);
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            }
+        }
+
+        .btn-replay:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .reveal-heading {
+                font-size: clamp(2.5rem, 12vw, 4rem);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- aria-label for accessibility since we split characters -->
+        <h1 class="reveal-heading" id="target-heading" aria-label="Elegance in Motion">
+            Elegance In Motion
+        </h1>
+        <p class="reveal-subtext" id="target-subtext" aria-label="Typography meets cinematic stagger">
+            Typography meets cinematic stagger
+        </p>
+
+        <div class="controls">
+            <button class="btn-replay" onclick="replayAnimation()">Replay Animation</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * FREE ALTERNATIVE TO SplitText
+         * Breaks text into Lines, Words, and Characters.
+         */
+        function splitText(selector) {
+            const elements = document.querySelectorAll(selector);
+            
+            elements.forEach(el => {
+                const text = el.innerText.trim();
+                const lines = text.split('\n'); // If pre-split by user
+                
+                el.innerHTML = '';
+                
+                const words = text.split(' ');
+                
+                words.forEach((word, wordIndex) => {
+                    const wordSpan = document.createElement('span');
+                    wordSpan.className = 'word';
+                    
+                    const chars = word.split('');
+                    chars.forEach(char => {
+                        const charSpan = document.createElement('span');
+                        charSpan.className = 'char';
+                        charSpan.innerText = char;
+                        wordSpan.appendChild(charSpan);
+                    });
+                    
+                    el.appendChild(wordSpan);
+                    
+                    // Add space after word if not the last one
+                    if (wordIndex < words.length - 1) {
+                        el.appendChild(document.createTextNode(' '));
+                    }
+                });
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            splitText('#target-heading');
+            splitText('#target-subtext');
+            
+            // Initial animation call
+            runReveal();
+        });
+
+        function runReveal() {
+            const headingChars = document.querySelectorAll('#target-heading .char');
+            const subtextChars = document.querySelectorAll('#target-subtext .char');
+
+            // Reset state
+            gsap.set([headingChars, subtextChars], {
+                x: 100,
+                opacity: 0,
+                skewX: 20
+            });
+
+            const tl = gsap.timeline();
+
+            tl.to(headingChars, {
+                x: 0,
+                opacity: 1,
+                skewX: 0,
+                duration: 1.2,
+                stagger: 0.04,
+                ease: "power4.out"
+            })
+            .to(subtextChars, {
+                x: 0,
+                opacity: 1,
+                skewX: 0,
+                duration: 1,
+                stagger: 0.02,
+                ease: "power3.out"
+            }, "-=0.8");
+        }
+
+        function replayAnimation() {
+            runReveal();
+        }
+
+    </script>
+</body>
+</html>

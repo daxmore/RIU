@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinematic Interactive Preloader | RIU Experiments</title>
+    <meta name="description" content="A premium GSAP-powered interactive preloader with circular SVG progress, clip-path wipes, and cinematic transitions.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <style>
+        /* 
+           COLORS: Using the Muted Pastel Palette from rules
+           - Muted Sage: #C8D8CC (Backgrounds)
+           - Pale Lavender: #D4C9E3 (Accents)
+           - Soft Peach: #F0D9D1 (Secondary Accents)
+           - Charcoal Blush: #888888 (Text)
+           - Soft White: #F5F5F0 (Neutral)
+        */
+        :root {
+            --bg-pastel: #F5F5F0;
+            --accent-sage: #C8D8CC;
+            --accent-lavender: #D4C9E3;
+            --accent-peach: #F0D9D1;
+            --text-main: #555555;
+            --text-muted: #888888;
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-pastel);
+            color: var(--text-main);
+            overflow: hidden; /* Prevent scrolling during preloader */
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- Preloader --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-pastel);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+            will-change: clip-path, transform;
+        }
+
+        .preloader-content {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Circular SVG Progress */
+        .svg-loader {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .svg-loader circle {
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .circle-bg {
+            stroke: var(--accent-sage);
+            opacity: 0.3;
+        }
+
+        .circle-progress {
+            stroke: var(--accent-lavender);
+            stroke-dasharray: 880; /* Circumference for r=140 */
+            stroke-dashoffset: 880;
+            will-change: stroke-dashoffset;
+        }
+
+        /* Central Brand Element */
+        .preloader-brand {
+            position: relative;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .logo-text {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-main);
+        }
+
+        .loading-percent {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+
+
+        /* --- Hero Section --- */
+        #hero {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--accent-sage);
+            visibility: hidden; /* Revealed by animation */
+        }
+
+        /* Hero Revealer (Digital Scan Effect) */
+        .hero-revealer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-pastel);
+            z-index: 5;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+            will-change: clip-path;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 900px;
+            transform: scale(1.1);
+            will-change: transform;
+        }
+
+        .hero-mask {
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 700;
+            line-height: 1;
+            text-transform: uppercase;
+            transform: translateY(100%);
+            will-change: transform;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            transform: translateY(100%);
+            will-change: transform;
+        }
+
+        /* Decorative Elements */
+        .nav-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .preloader-content {
+                width: 240px;
+                height: 240px;
+            }
+            .svg-loader circle {
+                cx: 120;
+                cy: 120;
+                r: 110;
+            }
+            .circle-progress {
+                stroke-dasharray: 691; /* 2 * PI * 110 */
+                stroke-dashoffset: 691;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader Layer -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <svg class="svg-loader" viewBox="0 0 300 300">
+                <circle class="circle-bg" cx="150" cy="150" r="140"></circle>
+                <circle id="progress-circle" class="circle-progress" cx="150" cy="150" r="140"></circle>
+            </svg>
+            
+            <div class="preloader-brand" id="brand-info">
+                <h2 class="logo-text">RIU</h2>
+                <p class="loading-percent" id="percent-text">0%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Content Layer -->
+    <section id="hero">
+        <!-- Digital Scan Wipe Layer -->
+        <div class="hero-revealer" id="scan-revealer"></div>
+
+        <nav class="nav-placeholder" id="hero-nav">
+            <div>Studio RIU</div>
+            <div>Experiments / 2026</div>
+        </nav>
+
+        <div class="hero-content" id="hero-main">
+            <div class="hero-mask">
+                <h1 class="hero-title">Cinematic</h1>
+            </div>
+            <div class="hero-mask">
+                <h1 class="hero-title">Reveal</h1>
+            </div>
+            <div class="hero-mask">
+                <p class="hero-subtitle">Interactive Motion Experience</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- CONFIGURATION ---
+        const config = {
+            circumference: 880, // for r=140
+            mobileCircumference: 691, // for r=110
+            loadDuration: 3.5,
+            easeMain: "power4.inOut"
+        };
+
+        // DOM Elements
+        const preloader = document.getElementById('preloader');
+        const progressCircle = document.getElementById('progress-circle');
+        const percentText = document.getElementById('percent-text');
+        const brandInfo = document.getElementById('brand-info');
+        const enterBtn = document.getElementById('enter-btn');
+        const hero = document.getElementById('hero');
+        const scanRevealer = document.getElementById('scan-revealer');
+        const heroTitles = document.querySelectorAll('.hero-title');
+        const heroSubtitle = document.querySelector('.hero-subtitle');
+        const heroContent = document.getElementById('hero-main');
+        const heroNav = document.getElementById('hero-nav');
+
+        // Adjust circumference for mobile
+        let currentCirc = window.innerWidth <= 768 ? config.mobileCircumference : config.circumference;
+        gsap.set(progressCircle, { strokeDasharray: currentCirc, strokeDashoffset: currentCirc });
+
+        // --- PHASE 1: LOADING SEQUENCE ---
+        const loadTL = gsap.timeline({
+            onComplete: triggerReveal
+        });
+
+        const loadingObj = { progress: 0 };
+
+        // Animate the circular stroke and percent text
+        loadTL.to(loadingObj, {
+            progress: 100,
+            duration: config.loadDuration,
+            ease: "power2.inOut",
+            onUpdate: () => {
+                const p = Math.floor(loadingObj.progress);
+                percentText.innerText = `${p}%`;
+                
+                // Update SVG stroke
+                const offset = currentCirc - (currentCirc * p / 100);
+                progressCircle.style.strokeDashoffset = offset;
+            }
+        });
+
+
+
+        // --- PHASE 3: EXIT & REVEAL ---
+        function triggerReveal() {
+            const tl = gsap.timeline();
+
+            // 1. Fade out brand info
+            tl.to(brandInfo, {
+                opacity: 0,
+                y: -20,
+                duration: 0.8,
+                ease: "power3.inOut"
+            });
+
+            // 2. Preloader Exit & Reveal Wipe
+            tl.to(preloader, {
+                scale: 0.9,
+                duration: 1.2,
+                ease: config.easeMain
+            }, 0.4)
+            .set(hero, { visibility: "visible" }, 0.6)
+            .to(preloader, {
+                clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+                duration: 1.5,
+                ease: config.easeMain
+            }, 0.6);
+
+            // 3. Digital Scan Wipe on Hero
+            tl.to(scanRevealer, {
+                clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+                duration: 1.6,
+                ease: "power3.inOut"
+            }, 0.8);
+
+            // 4. Hero Content Entrance
+            tl.to(heroContent, {
+                scale: 1,
+                duration: 2,
+                ease: "expo.out"
+            }, 1.0)
+            .to(heroTitles, {
+                y: 0,
+                duration: 1.5,
+                stagger: 0.15,
+                ease: "power4.out"
+            }, 1.2)
+            .to(heroSubtitle, {
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                ease: "power3.out"
+            }, 1.6)
+            .to(heroNav, {
+                opacity: 1,
+                duration: 1,
+                ease: "power2.out"
+            }, 1.8);
+        }
+
+        // Window resize handler to keep SVG correct
+        window.addEventListener('resize', () => {
+            currentCirc = window.innerWidth <= 768 ? config.mobileCircumference : config.circumference;
+            gsap.set(progressCircle, { strokeDasharray: currentCirc });
+        });
+
+    </script>
+</body>
+</html>
