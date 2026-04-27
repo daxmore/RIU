@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procedural ASCII Reveal | UI LAB</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+
+    <link rel="stylesheet" href="../../assets/global-nav.css">
+    
+    <style>
+        :root {
+            /* Muted / Earthy Colors */
+            --bg-color: #F5F5F0; /* Soft White */
+            --accent-color: #C8B0A8; /* Muted Clay */
+            --text-main: #2D2D2D;
+            --canvas-bg: #1a1a1a;
+            --ascii-color: #C8D8CC; /* Muted Sage for ASCII */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* --- UI Elements --- */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.6;
+            line-height: 1.6;
+        }
+
+        /* --- IMAGE CONTAINER --- */
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            background: var(--canvas-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .target-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: saturate(1.1) contrast(1.05);
+        }
+
+        .ascii-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Reveal State */
+        .image-container.revealed .target-image {
+            opacity: 1;
+        }
+
+        .image-container.revealed .ascii-canvas {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: 1px solid var(--accent-color);
+            background: transparent;
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* --- MOBILE ADAPTATION --- */
+        @media (max-width: 768px) {
+            .image-container {
+                aspect-ratio: 4 / 5;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>ASCII Reveal</h1>
+        <p>A procedural transition from low-fidelity character grids to high-definition imagery. Click the frame to re-trigger the sequence.</p>
+    </div>
+
+    <div class="image-container" id="container">
+        <!-- Using a high-quality placeholder that supports CORS for local development -->
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop" 
+             alt="Reveal Target" 
+             class="target-image" 
+             id="targetImg"
+             crossorigin="anonymous">
+        <!-- The animation canvas -->
+        <canvas class="ascii-canvas" id="asciiCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="resetAnimation()">Restart Animation</button>
+    </div>
+
+    <script src="../../assets/global-nav.js"></script>
+    <script>
+        /**
+         * --- CONFIGURATION ---
+         * Easily tweak these values to change the effect.
+         */
+        const CONFIG = {
+            fontSize: 10,
+            asciiChars: " .:-=+*#%@".split(""), // Lightest to darkest
+            noiseChars: "X$KMWB&@Q#".split(""), // Characters for the flicker/noise phase
+            flickerRange: [15, 40], // [min, max] frames of noise before settling
+            stagger: 0.0001, // Delay between each cell starting its animation
+            revealDelay: 500, // ms to wait after last cell settles before showing image
+            fontFamily: 'JetBrains Mono, monospace'
+        };
+
+        const container = document.getElementById('container');
+        const canvas = document.getElementById('asciiCanvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.getElementById('targetImg');
+        
+        let grid = [];
+        let animationFrame;
+        let isRevealed = false;
+        let settledCount = 0;
+
+        /**
+         * 1. INITIALIZATION & IMAGE LOADING
+         */
+        function init() {
+            // Ensure image is loaded before we start sampling
+            if (img.complete) {
+                startSequence();
+            } else {
+                img.onload = startSequence;
+            }
+        }
+
+        function startSequence() {
+            setupCanvas();
+            sampleImage();
+            animate();
+        }
+
+        /**
+         * 2. CANVAS SETUP (Handling Retina)
+         */
+        function setupCanvas() {
+            const rect = container.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            ctx.scale(dpr, dpr);
+            
+            // Set font properties
+            ctx.font = `${CONFIG.fontSize}px ${CONFIG.fontFamily}`;
+            ctx.textBaseline = 'top';
+        }
+
+        /**
+         * 3. SAMPLING & LUMINANCE MAPPING
+         * We draw the image to an offscreen canvas to read pixel data.
+         */
+        function sampleImage() {
+            const rect = container.getBoundingClientRect();
+            const cols = Math.ceil(rect.width / CONFIG.fontSize);
+            const rows = Math.ceil(rect.height / CONFIG.fontSize);
+            
+            const offscreen = document.createElement('canvas');
+            const oCtx = offscreen.getContext('2d', { willReadFrequently: true });
+            offscreen.width = cols;
+            offscreen.height = rows;
+            
+            // Draw image scaled down to the grid resolution
+            oCtx.drawImage(img, 0, 0, cols, rows);
+            const data = oCtx.getImageData(0, 0, cols, rows).data;
+            
+            grid = [];
+            settledCount = 0;
+            isRevealed = false;
+            container.classList.remove('revealed');
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const i = (y * cols + x) * 4;
+                    const r = data[i];
+                    const g = data[i+1];
+                    const b = data[i+2];
+                    
+                    // Standard luminance formula
+                    const brightness = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+                    
+                    // Map brightness to ASCII character
+                    const charIndex = Math.floor(brightness * (CONFIG.asciiChars.length - 1));
+                    const targetChar = CONFIG.asciiChars[charIndex];
+                    
+                    grid.push({
+                        x: x * CONFIG.fontSize,
+                        y: y * CONFIG.fontSize,
+                        targetChar: targetChar,
+                        currentChar: '',
+                        state: 'waiting', // waiting, flickering, settled
+                        flickerFrames: 0,
+                        delay: 0
+                    });
+                }
+            }
+
+            // Shuffle the grid to create a random reveal order
+            const shuffledGrid = [...grid];
+            gsap.utils.shuffle(shuffledGrid);
+
+            shuffledGrid.forEach((cell, index) => {
+                // We use GSAP delayed calls to trigger the start of each cell
+                gsap.delayedCall(index * CONFIG.stagger, () => {
+                    cell.state = 'flickering';
+                    cell.flickerFrames = gsap.utils.random(CONFIG.flickerRange[0], CONFIG.flickerRange[1], 1);
+                });
+            });
+        }
+
+        /**
+         * 4. MAIN ANIMATION LOOP
+         */
+        function animate() {
+            if (isRevealed) return;
+
+            const rect = container.getBoundingClientRect();
+            ctx.clearRect(0, 0, rect.width, rect.height);
+            
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ascii-color');
+            
+            let currentSettled = 0;
+
+            grid.forEach(cell => {
+                if (cell.state === 'flickering') {
+                    // Pick a random noise character
+                    cell.currentChar = CONFIG.noiseChars[Math.floor(Math.random() * CONFIG.noiseChars.length)];
+                    cell.flickerFrames--;
+                    
+                    if (cell.flickerFrames <= 0) {
+                        cell.state = 'settled';
+                        cell.currentChar = cell.targetChar;
+                    }
+                }
+
+                if (cell.state === 'settled') {
+                    currentSettled++;
+                }
+
+                if (cell.currentChar) {
+                    ctx.fillText(cell.currentChar, cell.x, cell.y);
+                }
+            });
+
+            // Check if all cells are settled
+            if (currentSettled === grid.length && grid.length > 0) {
+                isRevealed = true;
+                setTimeout(() => {
+                    container.classList.add('revealed');
+                }, CONFIG.revealDelay);
+            }
+
+            animationFrame = requestAnimationFrame(animate);
+        }
+
+        /**
+         * 5. UTILITIES
+         */
+        function resetAnimation() {
+            cancelAnimationFrame(animationFrame);
+            gsap.killTweensOf(gsap.delayedCall);
+            init();
+        }
+
+        container.addEventListener('click', resetAnimation);
+
+        // Responsive resize
+        window.addEventListener('resize', () => {
+            resetAnimation();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initGlobalNav('../../');
+            init();
+        });
+
+    </script>
+</body>
+</html>
